@@ -129,8 +129,10 @@ src/
    - 환경 변수 설정 후 바로 `mvn spring-boot:run` 실행
 
 4. **애플리케이션 접속**
-   - API 서버: http://localhost:8080/api
-   - 상태 확인: `curl http://localhost:8080/api/users`
+                - 메인 페이지: http://localhost:8080/
+                - 카카오 로그인: http://localhost:8080/login.html
+                - API 서버: http://localhost:8080/api
+                                       - 상태 확인: `curl http://localhost:8080/api/users`
 
 ### 🧪 API 테스트
 
@@ -162,6 +164,26 @@ curl http://localhost:8080/api/videos
 ### 🔐 환경 변수 설정
 
 보안을 위해 민감한 정보는 환경 변수로 설정하세요:
+
+**카카오 로그인 설정:**
+```bash
+# Windows PowerShell
+$env:KAKAO_CLIENT_ID="your_kakao_client_id"
+$env:KAKAO_CLIENT_SECRET="your_kakao_client_secret"
+$env:KAKAO_REDIRECT_URI="http://localhost:8080/auth/kakao/callback"
+
+# Windows CMD
+set KAKAO_CLIENT_ID=your_kakao_client_id
+set KAKAO_CLIENT_SECRET=your_kakao_client_secret
+set KAKAO_REDIRECT_URI=http://localhost:8080/auth/kakao/callback
+
+# Linux/Mac
+export KAKAO_CLIENT_ID=your_kakao_client_id
+export KAKAO_CLIENT_SECRET=your_kakao_client_secret
+export KAKAO_REDIRECT_URI=http://localhost:8080/auth/kakao/callback
+```
+
+**데이터베이스 설정:**
 
 ```bash
 # Windows PowerShell
@@ -266,29 +288,6 @@ mvn test
 # 통합 테스트 실행
 mvn verify
 ```
-
-## 📝 개발 가이드
-
-### 새로운 기능 추가 시
-1. 엔티티 클래스 생성
-2. 리포지토리 인터페이스 생성
-3. 서비스 클래스 생성
-4. 컨트롤러 클래스 생성
-5. 필요한 DTO 클래스 생성
-
-### 코드 컨벤션
-- 클래스명: PascalCase
-- 메서드명: camelCase
-- 상수: UPPER_SNAKE_CASE
-- 패키지명: 소문자
-
-## 🤝 기여 방법
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ## 📄 라이선스
 
