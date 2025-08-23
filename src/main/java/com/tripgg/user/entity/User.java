@@ -37,6 +37,14 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+    
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+    
     // 연관관계 - 순환 참조 방지를 위해 제거
     // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     // private List<Schedule> schedules;
