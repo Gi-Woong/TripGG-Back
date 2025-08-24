@@ -28,6 +28,10 @@ public class Chat {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
     
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chat_room_id", nullable = false)
+    private ChatRoom chatRoom;
+    
     @Column(name = "message", columnDefinition = "TEXT")
     private String message;
     

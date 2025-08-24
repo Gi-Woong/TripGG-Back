@@ -236,6 +236,18 @@
                     <a href="/auth/kakao/login" class="api-btn" target="_blank">GET /auth/kakao/login</a>
                     <a href="/auth/kakao/url" class="api-btn" target="_blank">GET /auth/kakao/url</a>
                 </div>
+                
+                <div class="api-group">
+                    <h3>💬 채팅</h3>
+                    <a href="/api/chat/rooms" class="api-btn" target="_blank">GET /api/chat/rooms (모든 채팅방)</a>
+                    <a href="/api/chat/1?latitude=37.482052612221445&longitude=126.87966753395074" class="api-btn" target="_blank">GET /api/chat/1 (서울 사용자 - 서울 채팅방)</a>
+                    <a href="/api/chat/1?latitude=35.50203443657561&longitude=128.76076097099724" class="api-btn" target="_blank">GET /api/chat/1 (부산 사용자 - 서울 채팅방) ❌</a>
+                    <a href="/api/chat/2?latitude=35.50203443657561&longitude=128.76076097099724" class="api-btn" target="_blank">GET /api/chat/2 (부산 사용자 - 부산 채팅방)</a>
+                    <a href="/api/chat/1/messages?latitude=37.482052612221445&longitude=126.87966753395074" class="api-btn" target="_blank">GET /api/chat/1/messages (서울 사용자)</a>
+                    <a href="/api/chat/1/messages?latitude=35.50203443657561&longitude=128.76076097099724" class="api-btn" target="_blank">GET /api/chat/1/messages (부산 사용자) ❌</a>
+                    <button onclick="createSeoulChatRoom()" class="api-btn">POST /api/chat/room/create (서울 채팅방 생성)</button>
+                    <button onclick="createBusanChatRoom()" class="api-btn">POST /api/chat/room/create (부산 채팅방 생성)</button>
+                </div>
             </div>
         </div>
     </div>
@@ -294,6 +306,62 @@
         window.onload = function() {
             setTimeout(testAPI, 1000);
         };
+        
+        // 서울 채팅방 생성
+        async function createSeoulChatRoom() {
+            try {
+                const response = await fetch('/api/chat/room/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        roomName: '서울 채팅방',
+                        latitude: '37.482052612221445',
+                        longitude: '126.87966753395074',
+                        locationName: '서울',
+                        radiusKm: '50'
+                    })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ 서울 채팅방 생성 성공!\n' + JSON.stringify(data, null, 2));
+                } else {
+                    alert('❌ 서울 채팅방 생성 실패: ' + data.message);
+                }
+            } catch (error) {
+                alert('❌ 오류: ' + error.message);
+            }
+        }
+        
+        // 부산 채팅방 생성
+        async function createBusanChatRoom() {
+            try {
+                const response = await fetch('/api/chat/room/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        roomName: '부산 채팅방',
+                        latitude: '35.50203443657561',
+                        longitude: '128.76076097099724',
+                        locationName: '부산',
+                        radiusKm: '50'
+                    })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ 부산 채팅방 생성 성공!\n' + JSON.stringify(data, null, 2));
+                } else {
+                    alert('❌ 부산 채팅방 생성 실패: ' + data.message);
+                }
+            } catch (error) {
+                alert('❌ 오류: ' + error.message);
+            }
+        }
     </script>
 </body>
 </html>
