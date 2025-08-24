@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -22,13 +23,14 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
+    private final KakaoAddressService kakaoAddressService;
     
     /**
      * 사용자 위치에서 가장 가까운 채팅방 찾기
      */
     public ChatRoom findNearestChatRoom(Double userLat, Double userLng) {
         // 위도 1도 = 약 111km, 경도 1도 = 약 111km * cos(위도)
-        double searchRadius = 50.0; // 50km 반경에서 검색
+        double searchRadius = 15.0; // 15km 반경에서 검색
         double latDelta = searchRadius / 111.0;
         double lngDelta = searchRadius / (111.0 * Math.cos(Math.toRadians(userLat)));
         
@@ -53,6 +55,123 @@ public class ChatService {
         
         return nearestRoom;
     }
+    
+    /**
+     * 사용자 위치 기반으로 적절한 채팅방 자동 선택 (경기도 31개 지역 매핑)
+     * @param userLat 사용자 위도
+     * @param userLng 사용자 경도
+     * @return 선택된 채팅방 ID (1~31)
+     */
+    public Integer selectChatRoomByRegion(Double userLat, Double userLng) {
+        log.info("지역 기반 채팅방 선택: 위도={}, 경도={}", userLat, userLng);
+        
+        try {
+            // 카카오 API로 좌표를 주소로 변환
+            String region2Depth = kakaoAddressService.getRegionFromCoordinates(userLng, userLat);
+            
+            if (region2Depth == null) {
+                log.warn("좌표를 주소로 변환할 수 없음");
+                return null;
+            }
+            
+            log.info("사용자 지역: {}", region2Depth);
+            
+            // 경기도 31개 지역 매핑
+            Integer roomId = getGyeonggiRegionRoomId(region2Depth);
+            if (roomId != null) {
+                log.info("경기도 지역 매핑 완료: {} → roomId={}", region2Depth, roomId);
+                return roomId;
+            }
+            
+            log.warn("경기도 지역이 아님: {}", region2Depth);
+            return null;
+            
+        } catch (Exception e) {
+            log.error("지역 기반 채팅방 선택 실패: {}", e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * 경기도 31개 지역을 roomId로 매핑
+     * @param regionName 지역명 (region_2depth_name)
+     * @return 채팅방 ID (1~31), 경기도 지역이 아니면 null
+     */
+    private Integer getGyeonggiRegionRoomId(String regionName) {
+        if (regionName == null) return null;
+        
+        // "수원시 팔달구" → "수원시" 추출
+        String extractedRegion = extractMainRegion(regionName);
+        if (extractedRegion == null) return null;
+        
+        log.info("지역명 추출: '{}' → '{}'", regionName, extractedRegion);
+        
+        // 경기도 31개 지역 매핑
+        switch (extractedRegion) {
+            case "수원시": return 1;
+            case "성남시": return 2;
+            case "고양시": return 3;
+            case "용인시": return 4;
+            case "부천시": return 5;
+            case "안산시": return 6;
+            case "안양시": return 7;
+            case "평택시": return 8;
+            case "화성시": return 9;
+            case "남양주시": return 10;
+            case "파주시": return 11;
+            case "김포시": return 12;
+            case "이천시": return 13;
+            case "안성시": return 14;
+            case "의정부시": return 15;
+            case "포천시": return 16;
+            case "동두천시": return 17;
+            case "광명시": return 18;
+            case "군포시": return 19;
+            case "양평군": return 20;
+            case "양주시": return 21;
+            case "구리시": return 22;
+            case "오산시": return 23;
+            case "하남시": return 24;
+            case "광주시": return 25;
+            case "연천군": return 26;
+            case "여주시": return 27;
+            case "가평군": return 28;
+            default: return null;
+        }
+    }
+    
+    /**
+     * 지역명에서 시/군/구 추출 (예: "수원시 팔달구" → "수원시")
+     * @param fullRegionName 전체 지역명
+     * @return 추출된 시/군/구명
+     */
+    private String extractMainRegion(String fullRegionName) {
+        if (fullRegionName == null) return null;
+        
+        // "시", "군"으로 끝나는 부분 추출
+        if (fullRegionName.contains("시")) {
+            int endIndex = fullRegionName.indexOf("시") + 1;
+            return fullRegionName.substring(0, endIndex);
+        } else if (fullRegionName.contains("군")) {
+            int endIndex = fullRegionName.indexOf("군") + 1;
+            return fullRegionName.substring(0, endIndex);
+        }
+        
+        return fullRegionName; // 원본 반환
+    }
+    
+
+    
+    /**
+     * ID로 채팅방 조회
+     * @param roomId 채팅방 ID
+     * @return 채팅방 정보
+     */
+    public ChatRoom getChatRoomById(Integer roomId) {
+        return chatRoomRepository.findById(roomId).orElse(null);
+    }
+    
+
     
     /**
      * 특정 지역의 채팅방 찾기

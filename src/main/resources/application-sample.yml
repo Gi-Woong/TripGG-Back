@@ -6,21 +6,34 @@ spring:
     name: tripgg-backend
   
   datasource:
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&readOnly=false&autoCommit=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    hikari:
+      read-only: false
+      auto-commit: true
+      connection-init-sql: SET SESSION TRANSACTION READ WRITE
+      connection-test-query: SELECT 1
   
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+    open-in-view: false
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
         naming:
           physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        connection:
+          read_only: false
+        jdbc:
+          batch_size: 20
+        transaction:
+          jta:
+            timeout: 30
   
   web:
     resources:
