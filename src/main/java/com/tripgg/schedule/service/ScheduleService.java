@@ -36,6 +36,11 @@ public class ScheduleService {
         return scheduleRepository.findById(id);
     }
     
+    // 전체 일정 조회
+    public List<Schedule> getAllSchedules() {
+        return scheduleRepository.findAll();
+    }
+    
     // 사용자별 일정 목록 조회
     public List<Schedule> getSchedulesByUserId(Long userId) {
         return scheduleRepository.findByUserIdOrderByCreatedAtDesc(userId);

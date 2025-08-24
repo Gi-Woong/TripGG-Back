@@ -18,6 +18,13 @@ public class ScheduleController {
     
     private final ScheduleService scheduleService;
     
+    // 전체 일정 조회
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<Schedule>>> getAllSchedules() {
+        List<Schedule> schedules = scheduleService.getAllSchedules();
+        return ResponseEntity.ok(ApiResponse.success("전체 일정을 성공적으로 조회했습니다.", schedules));
+    }
+    
     // 일정 생성
     @PostMapping
     public ResponseEntity<ApiResponse<Schedule>> createSchedule(
