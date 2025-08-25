@@ -1,5 +1,8 @@
 package com.tripgg.place.service;
 
+import com.tripgg.place.dto.KakaoPlaceResponse;
+import com.tripgg.place.dto.PlaceSearchRequest;
+import com.tripgg.place.dto.PlaceSearchResult;
 import com.tripgg.place.entity.Place;
 import com.tripgg.place.repository.PlaceRepository;
 import lombok.RequiredArgsConstructor;
@@ -7,8 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -17,6 +22,7 @@ import java.util.Optional;
 public class PlaceService {
     
     private final PlaceRepository placeRepository;
+    private final KakaoMapService kakaoMapService;
     
     // 장소 생성
     @Transactional
@@ -92,6 +98,95 @@ public class PlaceService {
     // 카테고리별 장소 개수 조회
     public long getPlaceCountByCategory(String category) {
         return placeRepository.countByCategory(category);
+    }
+    
+    /**
+     * 카테고리 기반 장소 검색 (카카오맵 API 사용)
+     */
+    public List<PlaceSearchResult> searchPlaces(PlaceSearchRequest request) {
+        List<PlaceSearchResult> results = new ArrayList<>();
+        
+        log.info("카테고리 기반 장소 검색 시작 - category: {}", request.getCategory());
+        
+        // 카테고리 검색만 지원
+        if (request.getCategory() != null && !request.getCategory().trim().isEmpty()) {
+            log.info("카카오맵 카테고리 검색 실행: {}", request.getCategory());
+            
+            try {
+                KakaoPlaceResponse kakaoResponse = kakaoMapService.searchByCategory(request);
+                
+                if (kakaoResponse != null && kakaoResponse.getDocuments() != null) {
+                    log.info("카카오맵 API 응답 성공, 문서 수: {}", kakaoResponse.getDocuments().size());
+                    
+                    List<PlaceSearchResult> kakaoResults = kakaoResponse.getDocuments().stream()
+                            .map(this::convertKakaoDocumentToSearchResult)
+                            .collect(Collectors.toList());
+                    
+                    results.addAll(kakaoResults);
+                    log.info("카카오맵 결과 변환 완료, 추가된 결과: {}개", kakaoResults.size());
+                } else {
+                    log.warn("카카오맵 API 응답이 null이거나 documents가 null");
+                }
+                
+            } catch (Exception e) {
+                log.error("카카오맵 API 검색 실패: {}", e.getMessage(), e);
+            }
+        } else {
+            log.info("카테고리가 지정되지 않음");
+        }
+        
+        log.info("최종 검색 결과: {}개", results.size());
+        return results;
+    }
+    
+    /**
+     * 카카오맵 Document를 PlaceSearchResult로 변환
+     */
+    private PlaceSearchResult convertKakaoDocumentToSearchResult(KakaoPlaceResponse.Document document) {
+        PlaceSearchResult result = new PlaceSearchResult();
+        result.setId(document.getId());
+        result.setPlaceName(document.getPlaceName());
+        result.setCategoryName(document.getCategoryName());
+        result.setCategoryGroupCode(document.getCategoryGroupCode());
+        result.setCategoryGroupName(document.getCategoryGroupName());
+        result.setPhone(document.getPhone());
+        result.setAddressName(document.getAddressName());
+        result.setRoadAddressName(document.getRoadAddressName());
+        result.setPlaceUrl(document.getPlaceUrl());
+        result.setDistance(document.getDistance());
+        result.setSource("kakao");
+        
+        // 좌표 변환
+        try {
+            if (document.getX() != null) {
+                result.setLongitude(Double.parseDouble(document.getX()));
+            }
+            if (document.getY() != null) {
+                result.setLatitude(Double.parseDouble(document.getY()));
+            }
+        } catch (NumberFormatException e) {
+            log.warn("좌표 변환 실패: x={}, y={}", document.getX(), document.getY());
+        }
+        
+        return result;
+    }
+    
+    /**
+     * DB Place 엔티티를 PlaceSearchResult로 변환
+     */
+    private List<PlaceSearchResult> convertToSearchResults(List<Place> places, String source) {
+        return places.stream().map(place -> {
+            PlaceSearchResult result = new PlaceSearchResult();
+            result.setId(String.valueOf(place.getId()));
+            result.setPlaceName(place.getName());
+            result.setCategoryName(place.getCategory());
+            result.setAddressName(place.getAddress());
+            result.setLongitude(place.getLongitude());
+            result.setLatitude(place.getLatitude());
+            result.setDescription(place.getDescription());
+            result.setSource(source);
+            return result;
+        }).collect(Collectors.toList());
     }
 }
 
