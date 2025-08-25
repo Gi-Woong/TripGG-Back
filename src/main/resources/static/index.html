@@ -207,10 +207,16 @@
             <h2 style="text-align: center; margin: 40px 0 20px 0;">🔗 API 엔드포인트 테스트</h2>
             <div class="api-grid">
                 <div class="api-group">
-                    <h3>👥 사용자 관리</h3>
+                    <h3>👥 사용자 관리 (기존)</h3>
                     <a href="/users" class="api-btn" target="_blank">GET /users (전체 사용자)</a>
                     <a href="/users/1" class="api-btn" target="_blank">GET /users/{id} (사용자 상세)</a>
                     <a href="/users/kakao/4410946094" class="api-btn" target="_blank">GET /users/kakao/{kakaoId}</a>
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
+                        <strong>📝 참고: 새로운 API 구조</strong><br>
+                        • 기존 /users 엔드포인트는 유지<br>
+                        • 새로운 /api/user/* 엔드포인트가 추가됨<br>
+                        • 인증이 필요한 API는 세션토큰 필요
+                    </div>
                 </div>
                 
                 <div class="api-group">
@@ -223,17 +229,57 @@
                     <h3>🏛️ 장소 관리</h3>
                     <a href="/places" class="api-btn" target="_blank">GET /places (전체 장소)</a>
                     <a href="/places/1" class="api-btn" target="_blank">GET /places/{id} (장소 상세)</a>
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
+                        <strong>🏷️ 카테고리 기반 장소 검색 API</strong><br>
+                        • GET /api/places/search - 카테고리별 장소 검색 (카카오맵 API 사용)<br>
+                        • GET /api/places/{placeId} - 장소 상세 조회<br>
+                        • 카테고리 코드: MT1(대형마트), CS2(편의점), FD6(음식점), CE7(카페), HP8(병원), PM9(약국) 등
+                    </div>
+                    
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
+                        <strong>🔍 카테고리 검색 (가장 확실한 방법)</strong><br>
+                        • 카테고리만으로도 정확한 결과 반환
+                    </div>
+                    
+                    <a href="/api/places/search?category=FD6" class="api-btn" target="_blank">GET /api/places/search?category=FD6 (음식점)</a>
+                    <a href="/api/places/search?category=CE7" class="api-btn" target="_blank">GET /api/places/search?category=CE7 (카페)</a>
+                    <a href="/api/places/search?category=MT1" class="api-btn" target="_blank">GET /api/places/search?category=MT1 (대형마트)</a>
+                    <a href="/api/places/search?category=CS2" class="api-btn" target="_blank">GET /api/places/search?category=CS2 (편의점)</a>
+                    
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
+                        <strong>📍 위치 기반 카테고리 검색</strong><br>
+                        • 특정 지역에서 카테고리별 장소 검색
+                    </div>
+                    
+                    <a href="/api/places/search?category=FD6&x=127.0276&y=37.4979&radius=5000" class="api-btn" target="_blank">GET /api/places/search (강남구 음식점)</a>
+                    <a href="/api/places/search?category=CE7&x=127.0276&y=37.4979&radius=5000" class="api-btn" target="_blank">GET /api/places/search (강남구 카페)</a>
+                    <a href="/api/places/search?category=FD6&x=126.9726&y=37.5547&radius=3000" class="api-btn" target="_blank">GET /api/places/search (서울역 음식점)</a>
                 </div>
                 
                 <div class="api-group">
                     <h3>🎥 비디오 관리</h3>
                     <a href="/videos" class="api-btn" target="_blank">GET /videos (전체 비디오)</a>
                     <a href="/videos/1" class="api-btn" target="_blank">GET /videos/{id} (비디오 상세)</a>
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
+                        <strong>👤 사용자별 비디오 관리</strong><br>
+                        • GET /api/user/video-list - 내가 올린 영상 목록<br>
+                        • GET /api/user/video/detail/{videoId} - 영상 상세 (본문, 좋아요 수 포함)<br>
+                        • 인증된 사용자만 접근 가능
+                    </div>
                 </div>
                 
                 <div class="api-group">
-                    <h3>🔐 인증</h3>
-                    <a href="/auth/kakao/login" class="api-btn" target="_blank">GET /auth/kakao/login</a>
+                    <h3>🔐 인증 & 회원 관리</h3>
+                    <a href="/auth/kakao/login" class="api-btn" target="_blank">GET /auth/kakao/login (카카오 로그인)</a>
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
+                        <strong>📋 POST API 엔드포인트</strong><br>
+                        • POST /api/auth/login - 카카오 토큰으로 로그인<br>
+                        • POST /api/auth/signup - 이메일, 닉키임으로 회원가입<br>
+                        • PUT /api/user/profile/update - 프로필 정보 수정
+                    </div>
+                    <a href="/api/user/profile" class="api-btn" target="_blank">GET /api/user/profile (내 정보 조회)</a>
+                    <a href="/api/user/video-list" class="api-btn" target="_blank">GET /api/user/video-list (내 영상 목록)</a>
+                    <a href="/api/user/video/detail/1" class="api-btn" target="_blank">GET /api/user/video/detail/{videoId} (영상 상세)</a>
                 </div>
                 
                 <div class="api-group">

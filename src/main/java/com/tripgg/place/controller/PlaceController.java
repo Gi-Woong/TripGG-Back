@@ -1,6 +1,8 @@
 package com.tripgg.place.controller;
 
 import com.tripgg.common.dto.ApiResponse;
+import com.tripgg.place.dto.PlaceSearchRequest;
+import com.tripgg.place.dto.PlaceSearchResult;
 import com.tripgg.place.entity.Place;
 import com.tripgg.place.service.PlaceService;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +14,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/places")
+@RequestMapping("/api/places")
 @RequiredArgsConstructor
 public class PlaceController {
     
@@ -93,6 +95,76 @@ public class PlaceController {
     public ResponseEntity<ApiResponse<Long>> getPlaceCountByCategory(@PathVariable String category) {
         long count = placeService.getPlaceCountByCategory(category);
         return ResponseEntity.ok(ApiResponse.success("카테고리별 장소 개수를 성공적으로 조회했습니다.", count));
+    }
+    
+    /**
+     * 카테고리 기반 장소 검색 API
+     * 카카오맵 API를 사용하여 카테고리별 장소 검색
+     */
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<PlaceSearchResult>>> searchPlaces(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String x,
+            @RequestParam(required = false) String y,
+            @RequestParam(required = false) Integer radius,
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "15") Integer size,
+            @RequestParam(required = false, defaultValue = "accuracy") String sort) {
+        
+        PlaceSearchRequest request = new PlaceSearchRequest();
+        request.setCategory(category);
+        request.setX(x);
+        request.setY(y);
+        request.setRadius(radius);
+        request.setPage(page);
+        request.setSize(size);
+        request.setSort(sort);
+        
+        List<PlaceSearchResult> results = placeService.searchPlaces(request);
+        return ResponseEntity.ok(ApiResponse.success("카테고리 기반 장소 검색이 완료되었습니다.", results));
+    }
+    
+    /**
+     * 장소 상세 조회 API
+     * 카카오맵으로 연결하여 상세정보 반환
+     */
+    @GetMapping("/detail/{placeId}")
+    public ResponseEntity<ApiResponse<PlaceSearchResult>> getPlaceDetail(@PathVariable String placeId) {
+        // DB에서 먼저 검색
+        try {
+            Long id = Long.parseLong(placeId);
+            Place place = placeService.getPlaceById(id)
+                    .orElseThrow(() -> new RuntimeException("장소를 찾을 수 없습니다."));
+            
+            PlaceSearchResult result = new PlaceSearchResult();
+            result.setId(String.valueOf(place.getId()));
+            result.setPlaceName(place.getName());
+            result.setCategoryName(place.getCategory());
+            result.setAddressName(place.getAddress());
+            result.setLongitude(place.getLongitude());
+            result.setLatitude(place.getLatitude());
+            result.setDescription(place.getDescription());
+            result.setSource("database");
+            
+            return ResponseEntity.ok(ApiResponse.success("장소 상세 정보를 성공적으로 조회했습니다.", result));
+            
+        } catch (NumberFormatException e) {
+            // placeId가 숫자가 아닌 경우 카카오맵에서 검색
+            PlaceSearchRequest request = new PlaceSearchRequest();
+            request.setKeyword(placeId);
+            request.setSize(1);
+            
+            try {
+                List<PlaceSearchResult> results = placeService.searchPlaces(request);
+                if (!results.isEmpty()) {
+                    return ResponseEntity.ok(ApiResponse.success("장소 상세 정보를 성공적으로 조회했습니다.", results.get(0)));
+                } else {
+                    return ResponseEntity.ok(ApiResponse.error("장소를 찾을 수 없습니다."));
+                }
+            } catch (Exception ex) {
+                return ResponseEntity.ok(ApiResponse.error("장소 상세 정보 조회에 실패했습니다: " + ex.getMessage()));
+            }
+        }
     }
 }
 

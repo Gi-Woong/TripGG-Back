@@ -183,6 +183,20 @@ export KAKAO_CLIENT_SECRET=your_kakao_client_secret
 export KAKAO_REDIRECT_URI=http://localhost:8080/auth/kakao/callback
 ```
 
+**카카오맵 API 설정:**
+```bash
+# Windows PowerShell
+$env:KAKAO_MAP_API_KEY="your_kakao_map_rest_api_key"
+
+# Windows CMD
+set KAKAO_MAP_API_KEY=your_kakao_map_rest_api_key
+
+# Linux/Mac
+export KAKAO_MAP_API_KEY=your_kakao_map_rest_api_key
+```
+
+**✅ 카카오맵 API 활성화 완료:** 카카오 개발자 콘솔에서 카카오맵 서비스가 활성화되어 실제 장소 데이터를 제공합니다.
+
 **데이터베이스 설정:**
 
 ```bash
@@ -262,6 +276,12 @@ JWT_SECRET=your_jwt_secret_key
 - `PUT /api/places/{id}` - 장소 수정
 - `DELETE /api/places/{id}` - 장소 삭제
 - `GET /api/places/category/{category}/count` - 카테고리별 장소 개수 조회
+
+### 🏷️ 카테고리 기반 장소 검색 API (카카오맵 연동)
+- `GET /api/places/search` - **카테고리별 장소 검색** (카카오맵 API 사용)
+- `GET /api/places/{placeId}` - **장소 상세 조회**
+- **검색 파라미터**: category, x(경도), y(위도), radius, page, size, sort
+- **카테고리 코드**: MT1(대형마트), CS2(편의점), FD6(음식점), CE7(카페), HP8(병원), PM9(약국) 등
 
 ## 🗄️ 데이터베이스
 
