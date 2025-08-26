@@ -41,9 +41,11 @@ public class Video {
     private String tags;
     
     @Column(name = "likes")
+    @Builder.Default
     private Integer likes = 0;
     
     @Column(name = "views")
+    @Builder.Default
     private Integer views = 0;
     
     @CreatedDate
