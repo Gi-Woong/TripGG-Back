@@ -37,6 +37,7 @@ public class Schedule {
     private String description;
     
     @Column(name = "is_ai_generated")
+    @Builder.Default
     private Boolean isAiGenerated = false;
     
     @CreatedDate
