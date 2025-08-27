@@ -258,13 +258,15 @@
                 
                 <div class="api-group">
                     <h3>🎥 비디오 관리</h3>
-                    <a href="/videos" class="api-btn" target="_blank">GET /videos (전체 비디오)</a>
-                    <a href="/videos/1" class="api-btn" target="_blank">GET /videos/{id} (비디오 상세)</a>
+                    <a href="/api/videos" class="api-btn" target="_blank">GET /api/videos (전체 비디오)</a>
+                    <a href="/api/videos/1" class="api-btn" target="_blank">GET /api/videos/{id} (비디오 상세)</a>
+                    
                     <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
-                        <strong>👤 사용자별 비디오 관리</strong><br>
-                        • GET /api/user/video-list - 내가 올린 영상 목록<br>
-                        • GET /api/user/video/detail/{videoId} - 영상 상세 (본문, 좋아요 수 포함)<br>
-                        • 인증된 사용자만 접근 가능
+                        <strong>🧪 비디오 삭제 테스트</strong><br>
+                        비디오 ID: <input type="number" id="deleteVideoId" value="1" style="width: 60px; margin: 0 5px; padding: 2px;"> 
+                        사용자 ID: <input type="number" id="deleteUserId" value="1" style="width: 60px; margin: 0 5px; padding: 2px;">
+                        <button onclick="deleteVideo()" style="background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-left: 10px;">비디오 삭제</button>
+                        <div id="deleteResult" style="margin-top: 10px; padding: 10px; border-radius: 4px; display: none;"></div>
                     </div>
                 </div>
                 
@@ -355,6 +357,61 @@
         window.onload = function() {
             setTimeout(testAPI, 1000);
         };
+        
+        // 비디오 삭제 함수
+        async function deleteVideo() {
+            const videoId = document.getElementById('deleteVideoId').value;
+            const userId = document.getElementById('deleteUserId').value;
+            const resultDiv = document.getElementById('deleteResult');
+            
+            if (!videoId || !userId) {
+                resultDiv.style.display = 'block';
+                resultDiv.style.background = '#e74c3c';
+                resultDiv.style.color = 'white';
+                resultDiv.innerHTML = '<strong>❌ 오류!</strong><br>비디오 ID와 사용자 ID를 모두 입력해주세요.';
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.style.background = '#f39c12';
+            resultDiv.style.color = 'white';
+            resultDiv.innerHTML = '<strong>⏳ 삭제 중...</strong><br>비디오를 삭제하고 있습니다.';
+            
+            try {
+                const response = await fetch(`/api/videos/${videoId}?userId=${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.style.background = '#27ae60';
+                    resultDiv.style.color = 'white';
+                    resultDiv.innerHTML = `
+                        <strong>✅ 비디오 삭제 성공!</strong><br>
+                        응답: ${JSON.stringify(data, null, 2)}
+                    `;
+                } else {
+                    resultDiv.style.background = '#e74c3c';
+                    resultDiv.style.color = 'white';
+                    resultDiv.innerHTML = `
+                        <strong>❌ 비디오 삭제 실패!</strong><br>
+                        상태: ${response.status}<br>
+                        오류: ${data.message || '알 수 없는 오류'}
+                    `;
+                }
+            } catch (error) {
+                resultDiv.style.background = '#e74c3c';
+                resultDiv.style.color = 'white';
+                resultDiv.innerHTML = `
+                    <strong>❌ 비디오 삭제 실패!</strong><br>
+                    오류: ${error.message}
+                `;
+            }
+        }
         
 
     </script>
