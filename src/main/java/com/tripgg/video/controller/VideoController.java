@@ -26,7 +26,7 @@ public class VideoController {
     public ResponseEntity<ApiResponse<List<Video>>> getAllVideos() {
         try {
             List<Video> videos = videoService.getAllVideos();
-            return ResponseEntity.ok(ApiResponse.success(videos, "전체 비디오 목록을 조회했습니다."));
+            return ResponseEntity.ok(ApiResponse.success("전체 비디오 목록을 조회했습니다.", videos));
         } catch (Exception e) {
             log.error("전체 비디오 목록 조회 중 오류 발생: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -51,7 +51,7 @@ public class VideoController {
             // 조회수 증가
             videoService.incrementViews(id);
             
-            return ResponseEntity.ok(ApiResponse.success(video, "비디오를 조회했습니다."));
+            return ResponseEntity.ok(ApiResponse.success("비디오를 조회했습니다.", video));
         } catch (Exception e) {
             log.error("비디오 조회 중 오류 발생: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -66,7 +66,7 @@ public class VideoController {
     public ResponseEntity<ApiResponse<List<Video>>> getVideosByUserId(@PathVariable Integer userId) {
         try {
             List<Video> videos = videoService.getVideosByUserId(userId);
-            return ResponseEntity.ok(ApiResponse.success(videos, "사용자별 비디오 목록을 조회했습니다."));
+            return ResponseEntity.ok(ApiResponse.success("사용자별 비디오 목록을 조회했습니다.", videos));
         } catch (Exception e) {
             log.error("사용자별 비디오 목록 조회 중 오류 발생: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -81,7 +81,7 @@ public class VideoController {
     public ResponseEntity<ApiResponse<List<Video>>> searchVideosByTitle(@RequestParam String title) {
         try {
             List<Video> videos = videoService.searchVideosByTitle(title);
-            return ResponseEntity.ok(ApiResponse.success(videos, "제목으로 비디오를 검색했습니다."));
+            return ResponseEntity.ok(ApiResponse.success( "제목으로 비디오를 검색했습니다.", videos));
         } catch (Exception e) {
             log.error("제목으로 비디오 검색 중 오류 발생: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -96,7 +96,7 @@ public class VideoController {
     public ResponseEntity<ApiResponse<List<Video>>> searchVideosByTag(@RequestParam String tag) {
         try {
             List<Video> videos = videoService.searchVideosByTag(tag);
-            return ResponseEntity.ok(ApiResponse.success(videos, "태그로 비디오를 검색했습니다."));
+            return ResponseEntity.ok(ApiResponse.success( "태그로 비디오를 검색했습니다.", videos));
         } catch (Exception e) {
             log.error("태그로 비디오 검색 중 오류 발생: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -111,7 +111,7 @@ public class VideoController {
     public ResponseEntity<ApiResponse<List<Video>>> getPopularVideosByLikes() {
         try {
             List<Video> videos = videoService.getPopularVideosByLikes();
-            return ResponseEntity.ok(ApiResponse.success(videos, "인기 비디오를 조회했습니다."));
+            return ResponseEntity.ok(ApiResponse.success( "인기 비디오를 조회했습니다.", videos));
         } catch (Exception e) {
             log.error("인기 비디오 조회 중 오류 발생: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -126,7 +126,7 @@ public class VideoController {
     public ResponseEntity<ApiResponse<List<Video>>> getPopularVideosByViews() {
         try {
             List<Video> videos = videoService.getPopularVideosByViews();
-            return ResponseEntity.ok(ApiResponse.success(videos, "인기 비디오를 조회했습니다."));
+            return ResponseEntity.ok(ApiResponse.success( "인기 비디오를 조회했습니다.", videos));
         } catch (Exception e) {
             log.error("인기 비디오 조회 중 오류 발생: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -142,7 +142,7 @@ public class VideoController {
         try {
             Video createdVideo = videoService.createVideo(video, userId);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.success(createdVideo, "비디오가 생성되었습니다."));
+                    .body(ApiResponse.success( "비디오가 생성되었습니다.", createdVideo));
         } catch (Exception e) {
             log.error("비디오 생성 중 오류 발생: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -157,7 +157,7 @@ public class VideoController {
     public ResponseEntity<ApiResponse<Video>> updateVideo(@PathVariable Integer id, @RequestBody Video videoDetails) {
         try {
             Video updatedVideo = videoService.updateVideo(id, videoDetails);
-            return ResponseEntity.ok(ApiResponse.success(updatedVideo, "비디오가 수정되었습니다."));
+            return ResponseEntity.ok(ApiResponse.success( "비디오가 수정되었습니다.", updatedVideo));
         } catch (Exception e) {
             log.error("비디오 수정 중 오류 발생: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -191,7 +191,7 @@ public class VideoController {
     public ResponseEntity<ApiResponse<Video>> incrementLikes(@PathVariable Integer id) {
         try {
             Video video = videoService.incrementLikes(id);
-            return ResponseEntity.ok(ApiResponse.success(video, "좋아요가 증가했습니다."));
+            return ResponseEntity.ok(ApiResponse.success( "좋아요가 증가했습니다.", video));
         } catch (Exception e) {
             log.error("좋아요 증가 중 오류 발생: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
