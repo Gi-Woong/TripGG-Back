@@ -9,6 +9,7 @@ jobs:
   build:
     name: Build with Maven
     runs-on: ubuntu-latest
+    environment: TripGG-Back-Deploy   # 사용할 Environment 이름
 
     steps:
       # 코드 체크아웃
