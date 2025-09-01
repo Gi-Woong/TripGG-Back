@@ -59,7 +59,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd /home/${{ secrets.SERVER_USER }}/app
-            gzip -d -k tripgg.tar.gz
+            gzip -d  tripgg.tar.gz
             docker load -i tripgg.tar
             docker stop tripgg || true
             docker rm tripgg || true
