@@ -28,6 +28,8 @@ jobs:
         run: |
           mkdir -p ./src/main/resources
           echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
+          echo $(ls)
+          echo $(pwd)
 
       # Maven 빌드
       - name: Build with Maven
