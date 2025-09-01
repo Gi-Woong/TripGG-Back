@@ -39,7 +39,7 @@ jobs:
         run: |
           docker save tripgg:latest | gzip > tripgg.tar.gz
 
-      # 4. SFTP로 빌드 결과 서버 전송
+      # SFTP로 빌드 결과 서버 전송
       - name: Upload JAR via SFTP
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -49,7 +49,7 @@ jobs:
           source: tripgg.tar.gz
           target: /home/${{ secrets.SERVER_USER }}/app/
 
-      # 5. SSH로 서버에서 Docker 실행
+      # SSH로 서버에서 Docker 실행
       - name: Run Docker on server via SSH
         uses: appleboy/ssh-action@v0.1.10
         with:
