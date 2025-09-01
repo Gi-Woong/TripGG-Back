@@ -11,22 +11,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 코드 체크아웃
+      # 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. JDK 설정 (Java 17 예시)
+      # JDK 설정 (Java 17 예시)
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
 
-      # 3. Maven 빌드
+      # Maven 빌드
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
-      # 3. Docker Save (tar 파일 생성)
+      - name: Make application.yml
+        run: |
+          mkdir -p ./src/main/resources
+          echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
+      # Docker 빌드
+      - name: Build Docker image
+        run: docker build -t tripgg:latest .
+
+      # Docker Save (tar.gz 파일 생성)
       - name: Save Docker image as tar
         run: |
           docker save tripgg:latest | gzip > tripgg.tar.gz
@@ -38,9 +46,8 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: target/*.jar
+          source: tripgg.tar.gz
           target: /home/${{ secrets.SERVER_USER }}/app/
-
 
       # 5. SSH로 서버에서 Docker 실행
       - name: Run Docker on server via SSH
