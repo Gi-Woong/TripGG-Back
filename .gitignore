@@ -86,9 +86,8 @@ Desktop.ini
 *.pid.lock
 
 # Application Properties
-application-local.yml
-application-prod.yml
-application.yml
+application*.yml
+!application-sample.yml
 
 # Logs
 logs/
