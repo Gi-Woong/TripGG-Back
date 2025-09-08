@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TripGG API 엔드포인트 가이드</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        h2 {
+            color: #764ba2;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+        
+        tr:hover {
+            background: #f8f9ff;
+        }
+        
+        pre {
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            overflow-x: auto;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .method-get { color: #28a745; font-weight: bold; }
+        .method-post { color: #007bff; font-weight: bold; }
+        .method-put { color: #ffc107; font-weight: bold; }
+        .method-delete { color: #dc3545; font-weight: bold; }
+        
+        .json-response {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .nav {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+            padding: 5px 10px;
+            border-radius: 3px;
+            transition: background 0.3s;
+        }
+        
+        .nav a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        
+        .back-to-top:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 TripGG 백엔드 API 엔드포인트 가이드</h1>
+        
+        <div class="nav">
+            <a href="#basic-info">기본 정보</a>
+            <a href="#users">사용자 관리</a>
+            <a href="#places">장소 관리</a>
+            <a href="#schedules">일정 관리</a>
+            <a href="#videos">비디오 관리</a>
+            <a href="#chat">채팅</a>
+            <a href="#auth">인증</a>
+            <a href="#test">테스트</a>
+        </div>
+        
+        <div id="basic-info">
+            <h2>📋 기본 정보</h2>
+            <div class="info">
+                <ul>
+                    <li><strong>Base URL</strong>: <code>http://localhost:8080</code></li>
+                    <li><strong>응답 형식</strong>: 모든 API는 <code>ApiResponse&lt;T&gt;</code> 형태로 응답</li>
+                    <li><strong>인증</strong>: 현재 모든 API는 인증 없이 접근 가능 (테스트용)</li>
+                </ul>
+            </div>
+            
+            <h3>📊 ApiResponse 구조</h3>
+            <div class="json-response">
+                <pre><code>{
+  "success": true,
+  "message": "요청이 성공적으로 처리되었습니다.",
+  "data": { /* 실제 데이터 */ },
+  "timestamp": 1703123456789
+}</code></pre>
+            </div>
+        </div>
+        
+        <div id="users">
+            <h2>👥 1. 사용자 관리 API</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>메서드</th>
+                        <th>엔드포인트</th>
+                        <th>설명</th>
+                        <th>실제 응답 데이터</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="method-get">GET</span></td>
+                        <td><code>/users</code></td>
+                        <td>전체 사용자 목록 조회</td>
+                        <td>
+                            <div class="json-response">
+                                <pre><code>{
+  "success": true,
+  "message": "사용자 목록을 성공적으로 조회했습니다.",
+  "data": [
+    {
+      "id": 1,
+      "kakaoId": "test_kakao_id_001",
+      "nickname": "테스트 사용자",
+      "profileImageUrl": "https://example.com/profile.jpg",
+      "createdAt": "2024-01-01T00:00:00",
+      "updatedAt": "2024-01-01T00:00:00"
+    }
+  ],
+  "timestamp": 1703123456789
+}</code></pre>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-get">GET</span></td>
+                        <td><code>/users/{id}</code></td>
+                        <td>특정 사용자 조회</td>
+                        <td>
+                            <div class="json-response">
+                                <pre><code>{
+  "success": true,
+  "message": "사용자 정보를 성공적으로 조회했습니다.",
+  "data": {
+    "id": 1,
+    "kakaoId": "test_kakao_id_001",
+    "nickname": "테스트 사용자",
+    "profileImageUrl": "https://example.com/profile.jpg",
+    "createdAt": "2024-01-01T00:00:00",
+    "updatedAt": "2024-01-01T00:00:00"
+  },
+  "timestamp": 1703123456789
+}</code></pre>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-post">POST</span></td>
+                        <td><code>/users</code></td>
+                        <td>사용자 생성</td>
+                        <td>
+                            <div class="json-response">
+                                <pre><code>{
+  "success": true,
+  "message": "사용자가 성공적으로 생성되었습니다.",
+  "data": {
+    "id": 2,
+    "kakaoId": "kakao_user_123",
+    "nickname": "홍길동",
+    "profileImageUrl": "https://k.kakaocdn.net/dn/profile.jpg",
+    "createdAt": "2024-01-01T00:00:00",
+    "updatedAt": null
+  },
+  "timestamp": 1703123456789
+}</code></pre>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-put">PUT</span></td>
+                        <td><code>/users/{id}</code></td>
+                        <td>사용자 정보 수정</td>
+                        <td>
+                            <div class="json-response">
+                                <pre><code>{
+  "success": true,
+  "message": "사용자 정보가 성공적으로 수정되었습니다.",
+  "data": {
+    "id": 1,
+    "kakaoId": "test_kakao_id_001",
+    "nickname": "수정된 닉네임",
+    "profileImageUrl": "https://example.com/new_profile.jpg",
+    "createdAt": "2024-01-01T00:00:00",
+    "updatedAt": "2024-01-01T12:00:00"
+  },
+  "timestamp": 1703123456789
+}</code></pre>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-delete">DELETE</span></td>
+                        <td><code>/users/{id}</code></td>
+                        <td>사용자 삭제</td>
+                        <td>
+                            <div class="json-response">
+                                <pre><code>{
+  "success": true,
+  "message": "사용자가 성공적으로 삭제되었습니다.",
+  "data": "삭제 완료",
+  "timestamp": 1703123456789
+}</code></pre>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-get">GET</span></td>
+                        <td><code>/users/kakao/{kakaoId}</code></td>
+                        <td>카카오 ID로 사용자 조회</td>
+                        <td>
+                            <div class="json-response">
+                                <pre><code>{
+  "success": true,
+  "message": "카카오 ID로 사용자 정보를 성공적으로 조회했습니다.",
+  "data": {
+    "id": 1,
+    "kakaoId": "test_kakao_id_001",
+    "nickname": "테스트 사용자",
+    "profileImageUrl": "https://example.com/profile.jpg",
+    "createdAt": "2024-01-01T00:00:00",
+    "updatedAt": "2024-01-01T00:00:00"
+  },
+  "timestamp": 1703123456789
+}</code></pre>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="places">
+            <h2>🏛️ 2. 장소 관리 API</h2>
+            <div class="info">
+                <h3>카테고리 코드</h3>
+                <ul>
+                    <li><code>MT1</code>: 대형마트</li>
+                    <li><code>CS2</code>: 편의점</li>
+                    <li><code>FD6</code>: 음식점</li>
+                    <li><code>CE7</code>: 카페</li>
+                    <li><code>HP8</code>: 병원</li>
+                    <li><code>PM9</code>: 약국</li>
+                </ul>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>메서드</th>
+                        <th>엔드포인트</th>
+                        <th>설명</th>
+                        <th>실제 응답 데이터</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="method-get">GET</span></td>
+                        <td><code>/api/places</code></td>
+                        <td>전체 장소 목록 조회</td>
+                        <td>
+                            <div class="json-response">
+                                <pre><code>{
+  "success": true,
+  "message": "전체 장소 목록을 성공적으로 조회했습니다.",
+  "data": [
+    {
+      "id": 1,
+      "name": "스타벅스 강남점",
+      "category": "CE7",
+      "address": "서울시 강남구 테헤란로 123",
+      "latitude": 37.4979,
+      "longitude": 127.0276,
+      "description": "강남역 근처 스타벅스",
+      "createdAt": "2024-01-01T00:00:00"
+    }
+  ],
+  "timestamp": 1703123456789
+}</code></pre>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-get">GET</span></td>
+                        <td><code>/api/places/search</code></td>
+                        <td>카테고리별 장소 검색 (카카오맵 API)</td>
+                        <td>
+                            <div class="json-response">
+                                <pre><code>{
+  "success": true,
+  "message": "카테고리 기반 장소 검색이 완료되었습니다.",
+  "data": [
+    {
+      "id": "dummy_1",
+      "placeName": "FD6 더미 장소 1",
+      "categoryName": "음식점 > 카페",
+      "categoryGroupCode": "FD6",
+      "categoryGroupName": "음식점",
+      "phone": "02-1234-5671",
+      "addressName": "서울시 강남구 더미동 1번지",
+      "roadAddressName": "서울시 강남구 더미로 1길",
+      "longitude": 127.01,
+      "latitude": 37.51,
+      "placeUrl": "http://place.map.kakao.com/dummy1",
+      "distance": "101",
+      "source": "kakao",
+      "description": null
+    }
+  ],
+  "timestamp": 1703123456789
+}</code></pre>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="chat">
+            <h2>💬 5. 채팅 API</h2>
+            <div class="info">
+                <h3>경기도 31개 지역 매핑</h3>
+                <p>사용자 위치를 기반으로 자동으로 적절한 채팅방을 선택합니다.</p>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>메서드</th>
+                        <th>엔드포인트</th>
+                        <th>설명</th>
+                        <th>실제 응답 데이터</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="method-get">GET</span></td>
+                        <td><code>/api/chat</code></td>
+                        <td>채팅방 자동 선택 (위치 기반)</td>
+                        <td>
+                            <div class="json-response">
+                                <pre><code>HTTP 302 Found
+Location: /api/chat/1
+
+리다이렉트 응답 (브라우저에서 자동으로 이동)</code></pre>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-get">GET</span></td>
+                        <td><code>/api/chat/{roomId}/messages</code></td>
+                        <td>채팅방 메시지 조회</td>
+                        <td>
+                            <div class="json-response">
+                                <pre><code>{
+  "success": true,
+  "message": "채팅방 메시지를 성공적으로 조회했습니다.",
+  "data": {
+    "locationMessage": "수원시 채팅방입니다",
+    "messages": [
+      {
+        "id": 1,
+        "user": {
+          "id": 1,
+          "kakaoId": "test_kakao_id_001",
+          "nickname": "테스트 사용자",
+          "profileImageUrl": "https://example.com/profile.jpg",
+          "createdAt": "2024-01-01T00:00:00",
+          "updatedAt": "2024-01-01T00:00:00"
+        },
+        "chatRoom": {
+          "id": 1,
+          "roomName": "수원시 채팅방",
+          "latitude": 37.2636,
+          "longitude": 127.0286,
+          "locationName": "수원시",
+          "radiusKm": 15.0,
+          "isActive": true,
+          "createdAt": "2024-01-01T00:00:00"
+        },
+        "message": "안녕하세요!",
+        "createdAt": "2024-01-01T00:00:00"
+      }
+    ],
+    "roomId": 1
+  },
+  "timestamp": 1703123456789
+}</code></pre>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="test">
+            <h2>🧪 API 테스트 예시</h2>
+            <div class="info">
+                <h3>curl 명령어 예시</h3>
+                <pre><code># 사용자 목록 조회
+curl -X GET http://localhost:8080/users
+
+# 카테고리별 장소 검색
+curl -X GET "http://localhost:8080/api/places/search?category=FD6&x=127.0276&y=37.4979&radius=5000"
+
+# 채팅방 자동 선택
+curl -X GET "http://localhost:8080/api/chat?latitude=37.26631826253257&longitude=127.00364147711848"
+
+# 메시지 전송
+curl -X POST "http://localhost:8080/api/chat/1/messages/send?message=안녕하세요&latitude=37.4979&longitude=127.0276"</code></pre>
+            </div>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ 주의사항</h3>
+            <ul>
+                <li><strong>인증</strong>: 현재 모든 API는 인증 없이 접근 가능 (테스트용)</li>
+                <li><strong>CORS</strong>: 모든 Origin에서 접근 가능하도록 설정됨</li>
+                <li><strong>위치 기반 서비스</strong>: 채팅방과 장소 검색은 사용자 위치 정보 필요</li>
+                <li><strong>카카오 API</strong>: 카카오맵 API 키가 설정되어 있어야 정상 작동</li>
+            </ul>
+        </div>
+        
+        <div class="info">
+            <h3>🔧 개발 환경 설정</h3>
+            <p><strong>실행 방법:</strong></p>
+            <pre><code># 프로젝트 디렉토리로 이동
+cd TripGG-Back
+
+# Maven으로 Spring Boot 애플리케이션 실행
+mvn spring-boot:run</code></pre>
+            
+            <p><strong>접속 URL:</strong></p>
+            <ul>
+                <li><strong>메인 페이지</strong>: <a href="http://localhost:8080/">http://localhost:8080/</a></li>
+                <li><strong>API 문서</strong>: <a href="http://localhost:8080/static/api-docs.html">http://localhost:8080/static/api-docs.html</a></li>
+                <li><strong>카카오 로그인</strong>: <a href="http://localhost:8080/login.html">http://localhost:8080/login.html</a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <a href="#" class="back-to-top">↑ 맨 위로</a>
+    
+    <script>
+        // 부드러운 스크롤
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // 맨 위로 버튼
+        document.querySelector('.back-to-top').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+</body>
+</html>
