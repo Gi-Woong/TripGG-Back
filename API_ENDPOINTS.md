@@ -3,7 +3,8 @@
 ## 📋 **기본 정보**
 - **Base URL**: `http://localhost:8080`
 - **응답 형식**: 모든 API는 `ApiResponse<T>` 형태로 응답
-- **인증**: 현재 모든 API는 인증 없이 접근 가능 (테스트용)
+- **인증**: JWT 토큰 기반 인증 시스템 (대부분의 API는 인증 필요)
+- **공개 API**: `/auth/**`, `/static/**`, `/api/places/search` 등은 인증 없이 접근 가능
 
 ## 📊 **ApiResponse 구조**
 ```json
@@ -17,12 +18,22 @@
 
 ---
 
-## 👥 **1. 사용자 관리 API**
+## 🔐 **1. 인증 API (공개)**
+
+| 메서드 | 엔드포인트 | 설명 | 실제 응답 데이터 |
+|--------|------------|------|------------------|
+| `GET` | `/auth/kakao/login` | 카카오 로그인 시작 (리다이렉트) | ```json<br>HTTP 302 Found<br>Location: https://kauth.kakao.com/oauth/authorize?client_id=169cf2b3607149a96a21cb8461486eba&redirect_uri=http://localhost:8080/auth/kakao/callback&response_type=code<br><br>카카오 로그인 페이지로 리다이렉트``` |
+| `POST` | `/auth/kakao/login` | 카카오 로그인 처리 (JWT 토큰 발급) | ```json<br>{<br>  "success": true,<br>  "message": "카카오 로그인 성공",<br>  "data": {<br>    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",<br>    "user": {<br>      "id": 1,<br>      "kakaoId": "test_kakao_id_001",<br>      "nickname": "테스트 사용자",<br>      "profileImageUrl": "https://example.com/profile.jpg",<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    },<br>    "isNewUser": false<br>  },<br>  "timestamp": 1703123456789<br>}``` |
+
+---
+
+## 👥 **2. 사용자 관리 API (JWT 인증 필요)**
 
 | 메서드 | 엔드포인트 | 설명 | 실제 응답 데이터 |
 |--------|------------|------|------------------|
 | `GET` | `/users` | 전체 사용자 목록 조회 | ```json<br>{<br>  "success": true,<br>  "message": "사용자 목록을 성공적으로 조회했습니다.",<br>  "data": [<br>    {<br>      "id": 1,<br>      "kakaoId": "test_kakao_id_001",<br>      "nickname": "테스트 사용자",<br>      "profileImageUrl": "https://example.com/profile.jpg",<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    }<br>  ],<br>  "timestamp": 1703123456789<br>}``` |
 | `GET` | `/users/{id}` | 특정 사용자 조회 | ```json<br>{<br>  "success": true,<br>  "message": "사용자 정보를 성공적으로 조회했습니다.",<br>  "data": {<br>    "id": 1,<br>    "kakaoId": "test_kakao_id_001",<br>    "nickname": "테스트 사용자",<br>    "profileImageUrl": "https://example.com/profile.jpg",<br>    "createdAt": "2024-01-01T00:00:00",<br>    "updatedAt": "2024-01-01T00:00:00"<br>  },<br>  "timestamp": 1703123456789<br>}``` |
+| `GET` | `/users/my` | **현재 로그인한 사용자 정보 조회** | ```json<br>{<br>  "success": true,<br>  "message": "현재 사용자 정보를 성공적으로 조회했습니다.",<br>  "data": {<br>    "id": 1,<br>    "kakaoId": "test_kakao_id_001",<br>    "nickname": "테스트 사용자",<br>    "profileImageUrl": "https://example.com/profile.jpg",<br>    "createdAt": "2024-01-01T00:00:00",<br>    "updatedAt": "2024-01-01T00:00:00"<br>  },<br>  "timestamp": 1703123456789<br>}``` |
 | `POST` | `/users` | 사용자 생성 | ```json<br>{<br>  "success": true,<br>  "message": "사용자가 성공적으로 생성되었습니다.",<br>  "data": {<br>    "id": 2,<br>    "kakaoId": "kakao_user_123",<br>    "nickname": "홍길동",<br>    "profileImageUrl": "https://k.kakaocdn.net/dn/profile.jpg",<br>    "createdAt": "2024-01-01T00:00:00",<br>    "updatedAt": null<br>  },<br>  "timestamp": 1703123456789<br>}``` |
 | `PUT` | `/users/{id}` | 사용자 정보 수정 | ```json<br>{<br>  "success": true,<br>  "message": "사용자 정보가 성공적으로 수정되었습니다.",<br>  "data": {<br>    "id": 1,<br>    "kakaoId": "test_kakao_id_001",<br>    "nickname": "수정된 닉네임",<br>    "profileImageUrl": "https://example.com/new_profile.jpg",<br>    "createdAt": "2024-01-01T00:00:00",<br>    "updatedAt": "2024-01-01T12:00:00"<br>  },<br>  "timestamp": 1703123456789<br>}``` |
 | `DELETE` | `/users/{id}` | 사용자 삭제 | ```json<br>{<br>  "success": true,<br>  "message": "사용자가 성공적으로 삭제되었습니다.",<br>  "data": "삭제 완료",<br>  "timestamp": 1703123456789<br>}``` |
@@ -61,31 +72,37 @@
 
 ---
 
-## 📅 **3. 일정 관리 API**
+## 📅 **3. 일정 관리 API (JWT 인증 필요)**
 
 | 메서드 | 엔드포인트 | 설명 | 실제 응답 데이터 |
 |--------|------------|------|------------------|
 | `GET` | `/schedules` | 전체 일정 조회 | ```json<br>{<br>  "success": true,<br>  "message": "전체 일정을 성공적으로 조회했습니다.",<br>  "data": [<br>    {<br>      "id": 1,<br>      "user": {<br>        "id": 1,<br>        "kakaoId": "test_kakao_id_001",<br>        "nickname": "테스트 사용자",<br>        "profileImageUrl": "https://example.com/profile.jpg",<br>        "createdAt": "2024-01-01T00:00:00",<br>        "updatedAt": "2024-01-01T00:00:00"<br>      },<br>      "title": "서울 여행 일정",<br>      "description": "1박 2일 서울 여행 계획",<br>      "isAiGenerated": false,<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    }<br>  ],<br>  "timestamp": 1703123456789<br>}``` |
 | `GET` | `/schedules/{id}` | 특정 일정 조회 | ```json<br>{<br>  "success": true,<br>  "message": "일정을 성공적으로 조회했습니다.",<br>  "data": {<br>    "id": 1,<br>    "user": {<br>      "id": 1,<br>      "kakaoId": "test_kakao_id_001",<br>      "nickname": "테스트 사용자",<br>      "profileImageUrl": "https://example.com/profile.jpg",<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    },<br>    "title": "서울 여행 일정",<br>    "description": "1박 2일 서울 여행 계획",<br>    "isAiGenerated": false,<br>    "createdAt": "2024-01-01T00:00:00",<br>    "updatedAt": "2024-01-01T00:00:00"<br>  },<br>  "timestamp": 1703123456789<br>}``` |
-| `POST` | `/schedules` | 일정 생성 | ```json<br>{<br>  "success": true,<br>  "message": "일정이 성공적으로 생성되었습니다.",<br>  "data": {<br>    "id": 2,<br>    "user": {<br>      "id": 1,<br>      "kakaoId": "test_kakao_id_001",<br>      "nickname": "테스트 사용자",<br>      "profileImageUrl": "https://example.com/profile.jpg",<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    },<br>    "title": "부산 여행 일정",<br>    "description": "2박 3일 부산 여행 계획",<br>    "isAiGenerated": true,<br>    "createdAt": "2024-01-01T00:00:00",<br>    "updatedAt": "2024-01-01T00:00:00"<br>  },<br>  "timestamp": 1703123456789<br>}``` |
+| `POST` | `/schedules` | **일정 생성** (현재 사용자 기준) | ```json<br>{<br>  "success": true,<br>  "message": "일정이 성공적으로 생성되었습니다.",<br>  "data": {<br>    "id": 2,<br>    "user": {<br>      "id": 1,<br>      "kakaoId": "test_kakao_id_001",<br>      "nickname": "테스트 사용자",<br>      "profileImageUrl": "https://example.com/profile.jpg",<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    },<br>    "title": "부산 여행 일정",<br>    "description": "2박 3일 부산 여행 계획",<br>    "isAiGenerated": true,<br>    "createdAt": "2024-01-01T00:00:00",<br>    "updatedAt": "2024-01-01T00:00:00"<br>  },<br>  "timestamp": 1703123456789<br>}``` |
 | `PUT` | `/schedules/{id}` | 일정 수정 | ```json<br>{<br>  "success": true,<br>  "message": "일정이 성공적으로 수정되었습니다.",<br>  "data": {<br>    "id": 1,<br>    "user": {<br>      "id": 1,<br>      "kakaoId": "test_kakao_id_001",<br>      "nickname": "테스트 사용자",<br>      "profileImageUrl": "https://example.com/profile.jpg",<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    },<br>    "title": "서울 여행 일정 (수정)",<br>    "description": "1박 2일 서울 여행 계획 (수정됨)",<br>    "isAiGenerated": false,<br>    "createdAt": "2024-01-01T00:00:00",<br>    "updatedAt": "2024-01-01T12:00:00"<br>  },<br>  "timestamp": 1703123456789<br>}``` |
 | `DELETE` | `/schedules/{id}` | 일정 삭제 | ```json<br>{<br>  "success": true,<br>  "message": "일정이 성공적으로 삭제되었습니다.",<br>  "data": "삭제 완료",<br>  "timestamp": 1703123456789<br>}``` |
-| `GET` | `/schedules/user/{userId}` | 사용자별 일정 목록 조회 | ```json<br>{<br>  "success": true,<br>  "message": "사용자별 일정 목록을 성공적으로 조회했습니다.",<br>  "data": [<br>    {<br>      "id": 1,<br>      "user": {<br>        "id": 1,<br>        "kakaoId": "test_kakao_id_001",<br>        "nickname": "테스트 사용자",<br>        "profileImageUrl": "https://example.com/profile.jpg",<br>        "createdAt": "2024-01-01T00:00:00",<br>        "updatedAt": "2024-01-01T00:00:00"<br>      },<br>      "title": "서울 여행 일정",<br>      "description": "1박 2일 서울 여행 계획",<br>      "isAiGenerated": false,<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    }<br>  ],<br>  "timestamp": 1703123456789<br>}``` |
-| `GET` | `/schedules/user/{userId}/ai-generated` | AI 생성 일정 조회 | ```json<br>{<br>  "success": true,<br>  "message": "AI 생성 일정을 성공적으로 조회했습니다.",<br>  "data": [<br>    {<br>      "id": 2,<br>      "user": {<br>        "id": 1,<br>        "kakaoId": "test_kakao_id_001",<br>        "nickname": "테스트 사용자",<br>        "profileImageUrl": "https://example.com/profile.jpg",<br>        "createdAt": "2024-01-01T00:00:00",<br>        "updatedAt": "2024-01-01T00:00:00"<br>      },<br>      "title": "부산 여행 일정",<br>      "description": "2박 3일 부산 여행 계획",<br>      "isAiGenerated": true,<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    }<br>  ],<br>  "timestamp": 1703123456789<br>}``` |
-| `GET` | `/schedules/user/{userId}/search` | 일정 검색 | ```json<br>{<br>  "success": true,<br>  "message": "일정 검색이 완료되었습니다.",<br>  "data": [<br>    {<br>      "id": 1,<br>      "user": {<br>        "id": 1,<br>        "kakaoId": "test_kakao_id_001",<br>        "nickname": "테스트 사용자",<br>        "profileImageUrl": "https://example.com/profile.jpg",<br>        "createdAt": "2024-01-01T00:00:00",<br>        "updatedAt": "2024-01-01T00:00:00"<br>      },<br>      "title": "서울 여행 일정",<br>      "description": "1박 2일 서울 여행 계획",<br>      "isAiGenerated": false,<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    }<br>  ],<br>  "timestamp": 1703123456789<br>}``` |
-| `GET` | `/schedules/user/{userId}/count` | 사용자별 일정 개수 조회 | ```json<br>{<br>  "success": true,<br>  "message": "사용자별 일정 개수를 성공적으로 조회했습니다.",<br>  "data": 3,<br>  "timestamp": 1703123456789<br>}``` |
+| `GET` | `/schedules/my-schedules` | **내 일정 목록 조회** | ```json<br>{<br>  "success": true,<br>  "message": "사용자 일정 목록을 성공적으로 조회했습니다.",<br>  "data": [<br>    {<br>      "id": 1,<br>      "user": {<br>        "id": 1,<br>        "kakaoId": "test_kakao_id_001",<br>        "nickname": "테스트 사용자",<br>        "profileImageUrl": "https://example.com/profile.jpg",<br>        "createdAt": "2024-01-01T00:00:00",<br>        "updatedAt": "2024-01-01T00:00:00"<br>      },<br>      "title": "서울 여행 일정",<br>      "description": "1박 2일 서울 여행 계획",<br>      "isAiGenerated": false,<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    }<br>  ],<br>  "timestamp": 1703123456789<br>}``` |
+| `GET` | `/schedules/my-ai-schedules` | **내 AI 생성 일정 조회** | ```json<br>{<br>  "success": true,<br>  "message": "AI 생성 일정을 성공적으로 조회했습니다.",<br>  "data": [<br>    {<br>      "id": 2,<br>      "user": {<br>        "id": 1,<br>        "kakaoId": "test_kakao_id_001",<br>        "nickname": "테스트 사용자",<br>        "profileImageUrl": "https://example.com/profile.jpg",<br>        "createdAt": "2024-01-01T00:00:00",<br>        "updatedAt": "2024-01-01T00:00:00"<br>      },<br>      "title": "부산 여행 일정",<br>      "description": "2박 3일 부산 여행 계획",<br>      "isAiGenerated": true,<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    }<br>  ],<br>  "timestamp": 1703123456789<br>}``` |
+| `GET` | `/schedules/search` | **내 일정 검색** | ```json<br>{<br>  "success": true,<br>  "message": "일정 검색이 완료되었습니다.",<br>  "data": [<br>    {<br>      "id": 1,<br>      "user": {<br>        "id": 1,<br>        "kakaoId": "test_kakao_id_001",<br>        "nickname": "테스트 사용자",<br>        "profileImageUrl": "https://example.com/profile.jpg",<br>        "createdAt": "2024-01-01T00:00:00",<br>        "updatedAt": "2024-01-01T00:00:00"<br>      },<br>      "title": "서울 여행 일정",<br>      "description": "1박 2일 서울 여행 계획",<br>      "isAiGenerated": false,<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    }<br>  ],<br>  "timestamp": 1703123456789<br>}``` |
+| `GET` | `/schedules/my-count` | **내 일정 개수 조회** | ```json<br>{<br>  "success": true,<br>  "message": "일정 개수를 성공적으로 조회했습니다.",<br>  "data": 3,<br>  "timestamp": 1703123456789<br>}``` |
 
 ---
 
-## 🎥 **4. 비디오 관리 API**
+## 🎥 **4. 비디오 관리 API (JWT 인증 필요)**
 
 | 메서드 | 엔드포인트 | 설명 | 실제 응답 데이터 |
 |--------|------------|------|------------------|
 | `GET` | `/api/videos` | 전체 비디오 목록 조회 | ```json<br>{<br>  "success": true,<br>  "message": "전체 비디오 목록을 조회했습니다.",<br>  "data": [<br>    {<br>      "id": 1,<br>      "user": {<br>        "id": 1,<br>        "kakaoId": "test_kakao_id_001",<br>        "nickname": "테스트 사용자",<br>        "profileImageUrl": "https://example.com/profile.jpg",<br>        "createdAt": "2024-01-01T00:00:00",<br>        "updatedAt": "2024-01-01T00:00:00"<br>      },<br>      "title": "서울 여행 영상",<br>      "videoUrl": "https://example.com/video1.mp4",<br>      "description": "서울 여행 영상입니다",<br>      "tags": "서울,여행,관광",<br>      "likes": 10,<br>      "views": 100,<br>      "createdAt": "2024-01-01T00:00:00"<br>    }<br>  ],<br>  "timestamp": 1703123456789<br>}``` |
 | `GET` | `/api/videos/{id}` | 특정 비디오 조회 | ```json<br>{<br>  "success": true,<br>  "message": "비디오를 성공적으로 조회했습니다.",<br>  "data": {<br>    "id": 1,<br>    "user": {<br>      "id": 1,<br>      "kakaoId": "test_kakao_id_001",<br>      "nickname": "테스트 사용자",<br>      "profileImageUrl": "https://example.com/profile.jpg",<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    },<br>    "title": "서울 여행 영상",<br>    "videoUrl": "https://example.com/video1.mp4",<br>    "description": "서울 여행 영상입니다",<br>    "tags": "서울,여행,관광",<br>    "likes": 10,<br>    "views": 100,<br>    "createdAt": "2024-01-01T00:00:00"<br>  },<br>  "timestamp": 1703123456789<br>}``` |
-| `POST` | `/api/videos` | 비디오 생성 | ```json<br>{<br>  "success": true,<br>  "message": "비디오가 성공적으로 생성되었습니다.",<br>  "data": {<br>    "id": 2,<br>    "user": {<br>      "id": 1,<br>      "kakaoId": "test_kakao_id_001",<br>      "nickname": "테스트 사용자",<br>      "profileImageUrl": "https://example.com/profile.jpg",<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    },<br>    "title": "부산 여행 영상",<br>    "videoUrl": "https://example.com/video2.mp4",<br>    "description": "부산 여행 영상입니다",<br>    "tags": "부산,여행,바다",<br>    "likes": 0,<br>    "views": 0,<br>    "createdAt": "2024-01-01T00:00:00"<br>  },<br>  "timestamp": 1703123456789<br>}``` |
+| `GET` | `/api/videos/my-videos` | **내 비디오 목록 조회** | ```json<br>{<br>  "success": true,<br>  "message": "사용자별 비디오 목록을 조회했습니다.",<br>  "data": [<br>    {<br>      "id": 1,<br>      "user": {<br>        "id": 1,<br>        "kakaoId": "test_kakao_id_001",<br>        "nickname": "테스트 사용자",<br>        "profileImageUrl": "https://example.com/profile.jpg",<br>        "createdAt": "2024-01-01T00:00:00",<br>        "updatedAt": "2024-01-01T00:00:00"<br>      },<br>      "title": "서울 여행 영상",<br>      "videoUrl": "https://example.com/video1.mp4",<br>      "description": "서울 여행 영상입니다",<br>      "tags": "서울,여행,관광",<br>      "likes": 10,<br>      "views": 100,<br>      "createdAt": "2024-01-01T00:00:00"<br>    }<br>  ],<br>  "timestamp": 1703123456789<br>}``` |
+| `POST` | `/api/videos` | **비디오 생성** (현재 사용자 기준) | ```json<br>{<br>  "success": true,<br>  "message": "비디오가 성공적으로 생성되었습니다.",<br>  "data": {<br>    "id": 2,<br>    "user": {<br>      "id": 1,<br>      "kakaoId": "test_kakao_id_001",<br>      "nickname": "테스트 사용자",<br>      "profileImageUrl": "https://example.com/profile.jpg",<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    },<br>    "title": "부산 여행 영상",<br>    "videoUrl": "https://example.com/video2.mp4",<br>    "description": "부산 여행 영상입니다",<br>    "tags": "부산,여행,바다",<br>    "likes": 0,<br>    "views": 0,<br>    "createdAt": "2024-01-01T00:00:00"<br>  },<br>  "timestamp": 1703123456789<br>}``` |
 | `PUT` | `/api/videos/{id}` | 비디오 수정 | ```json<br>{<br>  "success": true,<br>  "message": "비디오가 성공적으로 수정되었습니다.",<br>  "data": {<br>    "id": 1,<br>    "user": {<br>      "id": 1,<br>      "kakaoId": "test_kakao_id_001",<br>      "nickname": "테스트 사용자",<br>      "profileImageUrl": "https://example.com/profile.jpg",<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    },<br>    "title": "서울 여행 영상 (수정)",<br>    "videoUrl": "https://example.com/video1.mp4",<br>    "description": "서울 여행 영상입니다 (수정됨)",<br>    "tags": "서울,여행,관광,수정",<br>    "likes": 10,<br>    "views": 100,<br>    "createdAt": "2024-01-01T00:00:00"<br>  },<br>  "timestamp": 1703123456789<br>}``` |
-| `DELETE` | `/api/videos/{id}` | 비디오 삭제 | ```json<br>{<br>  "success": true,<br>  "message": "비디오가 성공적으로 삭제되었습니다.",<br>  "data": "삭제 완료",<br>  "timestamp": 1703123456789<br>}``` |
+| `DELETE` | `/api/videos/{id}` | **비디오 삭제** (현재 사용자 기준) | ```json<br>{<br>  "success": true,<br>  "message": "비디오가 성공적으로 삭제되었습니다.",<br>  "data": "삭제 완료",<br>  "timestamp": 1703123456789<br>}``` |
+| `GET` | `/api/videos/search/title` | 제목으로 비디오 검색 | ```json<br>{<br>  "success": true,<br>  "message": "제목으로 비디오를 검색했습니다.",<br>  "data": [<br>    {<br>      "id": 1,<br>      "user": {<br>        "id": 1,<br>        "kakaoId": "test_kakao_id_001",<br>        "nickname": "테스트 사용자",<br>        "profileImageUrl": "https://example.com/profile.jpg",<br>        "createdAt": "2024-01-01T00:00:00",<br>        "updatedAt": "2024-01-01T00:00:00"<br>      },<br>      "title": "서울 여행 영상",<br>      "videoUrl": "https://example.com/video1.mp4",<br>      "description": "서울 여행 영상입니다",<br>      "tags": "서울,여행,관광",<br>      "likes": 10,<br>      "views": 100,<br>      "createdAt": "2024-01-01T00:00:00"<br>    }<br>  ],<br>  "timestamp": 1703123456789<br>}``` |
+| `GET` | `/api/videos/search/tag` | 태그로 비디오 검색 | ```json<br>{<br>  "success": true,<br>  "message": "태그로 비디오를 검색했습니다.",<br>  "data": [<br>    {<br>      "id": 1,<br>      "user": {<br>        "id": 1,<br>        "kakaoId": "test_kakao_id_001",<br>        "nickname": "테스트 사용자",<br>        "profileImageUrl": "https://example.com/profile.jpg",<br>        "createdAt": "2024-01-01T00:00:00",<br>        "updatedAt": "2024-01-01T00:00:00"<br>      },<br>      "title": "서울 여행 영상",<br>      "videoUrl": "https://example.com/video1.mp4",<br>      "description": "서울 여행 영상입니다",<br>      "tags": "서울,여행,관광",<br>      "likes": 10,<br>      "views": 100,<br>      "createdAt": "2024-01-01T00:00:00"<br>    }<br>  ],<br>  "timestamp": 1703123456789<br>}``` |
+| `GET` | `/api/videos/popular/likes` | 인기 비디오 조회 (좋아요 기준) | ```json<br>{<br>  "success": true,<br>  "message": "인기 비디오를 조회했습니다.",<br>  "data": [<br>    {<br>      "id": 1,<br>      "user": {<br>        "id": 1,<br>        "kakaoId": "test_kakao_id_001",<br>        "nickname": "테스트 사용자",<br>        "profileImageUrl": "https://example.com/profile.jpg",<br>        "createdAt": "2024-01-01T00:00:00",<br>        "updatedAt": "2024-01-01T00:00:00"<br>      },<br>      "title": "서울 여행 영상",<br>      "videoUrl": "https://example.com/video1.mp4",<br>      "description": "서울 여행 영상입니다",<br>      "tags": "서울,여행,관광",<br>      "likes": 10,<br>      "views": 100,<br>      "createdAt": "2024-01-01T00:00:00"<br>    }<br>  ],<br>  "timestamp": 1703123456789<br>}``` |
+| `GET` | `/api/videos/popular/views` | 인기 비디오 조회 (조회수 기준) | ```json<br>{<br>  "success": true,<br>  "message": "인기 비디오를 조회했습니다.",<br>  "data": [<br>    {<br>      "id": 1,<br>      "user": {<br>        "id": 1,<br>        "kakaoId": "test_kakao_id_001",<br>        "nickname": "테스트 사용자",<br>        "profileImageUrl": "https://example.com/profile.jpg",<br>        "createdAt": "2024-01-01T00:00:00",<br>        "updatedAt": "2024-01-01T00:00:00"<br>      },<br>      "title": "서울 여행 영상",<br>      "videoUrl": "https://example.com/video1.mp4",<br>      "description": "서울 여행 영상입니다",<br>      "tags": "서울,여행,관광",<br>      "likes": 10,<br>      "views": 100,<br>      "createdAt": "2024-01-01T00:00:00"<br>    }<br>  ],<br>  "timestamp": 1703123456789<br>}``` |
+| `POST` | `/api/videos/{id}/like` | 좋아요 증가 | ```json<br>{<br>  "success": true,<br>  "message": "좋아요가 증가했습니다.",<br>  "data": {<br>    "id": 1,<br>    "user": {<br>      "id": 1,<br>      "kakaoId": "test_kakao_id_001",<br>      "nickname": "테스트 사용자",<br>      "profileImageUrl": "https://example.com/profile.jpg",<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    },<br>    "title": "서울 여행 영상",<br>    "videoUrl": "https://example.com/video1.mp4",<br>    "description": "서울 여행 영상입니다",<br>    "tags": "서울,여행,관광",<br>    "likes": 11,<br>    "views": 100,<br>    "createdAt": "2024-01-01T00:00:00"<br>  },<br>  "timestamp": 1703123456789<br>}``` |
 
 ---
 
@@ -131,37 +148,59 @@
 
 ## 🧪 **API 테스트 예시**
 
-### **1. 사용자 목록 조회**
+### **1. 카카오 로그인 (JWT 토큰 획득)**
 ```bash
-curl -X GET http://localhost:8080/users
+curl -X POST "http://localhost:8080/auth/kakao/login?authorizationCode=<카카오_인가코드>"
 ```
 
-### **2. 카테고리별 장소 검색**
+### **2. JWT 토큰을 사용한 API 호출**
 ```bash
+# 현재 사용자 정보 조회
+curl -H "Authorization: Bearer <JWT_TOKEN>" http://localhost:8080/users/my
+
+# 내 일정 목록 조회
+curl -H "Authorization: Bearer <JWT_TOKEN>" http://localhost:8080/schedules/my-schedules
+
+# 내 비디오 목록 조회
+curl -H "Authorization: Bearer <JWT_TOKEN>" http://localhost:8080/api/videos/my-videos
+
+# 일정 생성
+curl -H "Authorization: Bearer <JWT_TOKEN>" -X POST http://localhost:8080/schedules \
+  -H "Content-Type: application/json" \
+  -d '{"title": "서울 여행", "description": "1박 2일 서울 여행 계획"}'
+```
+
+### **3. 공개 API (인증 불필요)**
+```bash
+# 카테고리별 장소 검색
 curl -X GET "http://localhost:8080/api/places/search?category=FD6&x=127.0276&y=37.4979&radius=5000"
+
+# 장소 상세 조회
+curl -X GET "http://localhost:8080/api/places/detail/1"
 ```
 
-### **3. 채팅방 자동 선택**
+### **4. 채팅 API (JWT 토큰 필요)**
 ```bash
-curl -X GET "http://localhost:8080/api/chat?latitude=37.26631826253257&longitude=127.00364147711848"
-```
+# 채팅방 자동 선택
+curl -H "Authorization: Bearer <JWT_TOKEN>" -X GET "http://localhost:8080/api/chat?latitude=37.26631826253257&longitude=127.00364147711848"
 
-### **4. 메시지 전송**
-```bash
-curl -X POST "http://localhost:8080/api/chat/1/messages/send?message=안녕하세요&latitude=37.4979&longitude=127.0276"
+# 메시지 전송
+curl -H "Authorization: Bearer <JWT_TOKEN>" -X POST "http://localhost:8080/api/chat/1/messages/send?message=안녕하세요&latitude=37.4979&longitude=127.0276"
 ```
 
 ---
 
 ## ⚠️ **주의사항**
 
-1. **인증**: 현재 모든 API는 인증 없이 접근 가능 (테스트용)
-2. **CORS**: 모든 Origin에서 접근 가능하도록 설정됨
-3. **에러 처리**: 모든 API는 일관된 에러 응답 형식 사용
-4. **위치 기반 서비스**: 채팅방과 장소 검색은 사용자 위치 정보 필요
-5. **카카오 API**: 카카오맵 API 키가 설정되어 있어야 정상 작동
-6. **데이터베이스**: MySQL 데이터베이스 사용 (외부 서버)
-7. **JPA 설정**: `ddl-auto: update` 사용으로 테이블 자동 업데이트
+1. **JWT 인증**: 대부분의 API는 JWT 토큰 인증이 필요합니다
+2. **공개 API**: `/auth/**`, `/static/**`, `/api/places/search` 등은 인증 없이 접근 가능
+3. **토큰 만료**: JWT 토큰은 24시간 후 만료됩니다
+4. **CORS**: 모든 Origin에서 접근 가능하도록 설정됨
+5. **에러 처리**: 모든 API는 일관된 에러 응답 형식 사용
+6. **위치 기반 서비스**: 채팅방과 장소 검색은 사용자 위치 정보 필요
+7. **카카오 API**: 카카오맵 API 키가 설정되어 있어야 정상 작동
+8. **데이터베이스**: MySQL 데이터베이스 사용 (외부 서버)
+9. **JPA 설정**: `ddl-auto: update` 사용으로 테이블 자동 업데이트
 
 ---
 

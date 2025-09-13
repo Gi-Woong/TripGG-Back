@@ -1,5 +1,6 @@
 package com.tripgg.video.controller;
 
+import com.tripgg.auth.util.SecurityUtil;
 import com.tripgg.common.dto.ApiResponse;
 import com.tripgg.video.entity.Video;
 import com.tripgg.video.service.VideoService;
@@ -60,12 +61,21 @@ public class VideoController {
     }
     
     /**
-     * 사용자별 비디오 목록 조회
+     * 사용자별 비디오 목록 조회 (현재 로그인한 사용자)
      */
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse<List<Video>>> getVideosByUserId(@PathVariable Integer userId) {
+    @GetMapping("/my-videos")
+    public ResponseEntity<ApiResponse<List<Video>>> getMyVideos() {
         try {
-            List<Video> videos = videoService.getVideosByUserId(userId);
+            Long currentUserId = SecurityUtil.getCurrentUserId();
+            String currentUserNickname = SecurityUtil.getCurrentUserNickname();
+            log.info("내 비디오 목록 조회 요청 - 사용자 ID: {}, 닉네임: {}", currentUserId, currentUserNickname);
+            
+            if (currentUserId == null) {
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.error("인증이 필요합니다."));
+            }
+            
+            List<Video> videos = videoService.getVideosByUserId(currentUserId.intValue());
             return ResponseEntity.ok(ApiResponse.success("사용자별 비디오 목록을 조회했습니다.", videos));
         } catch (Exception e) {
             log.error("사용자별 비디오 목록 조회 중 오류 발생: ", e);
@@ -138,9 +148,18 @@ public class VideoController {
      * 비디오 생성
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<Video>> createVideo(@RequestBody Video video, @RequestParam Integer userId) {
+    public ResponseEntity<ApiResponse<Video>> createVideo(@RequestBody Video video) {
         try {
-            Video createdVideo = videoService.createVideo(video, userId);
+            Long currentUserId = SecurityUtil.getCurrentUserId();
+            String currentUserNickname = SecurityUtil.getCurrentUserNickname();
+            log.info("비디오 생성 요청 - 사용자 ID: {}, 닉네임: {}", currentUserId, currentUserNickname);
+            
+            if (currentUserId == null) {
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.error("인증이 필요합니다."));
+            }
+            
+            Video createdVideo = videoService.createVideo(video, currentUserId.intValue());
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(ApiResponse.success( "비디오가 생성되었습니다.", createdVideo));
         } catch (Exception e) {
@@ -169,9 +188,18 @@ public class VideoController {
      * 비디오 삭제
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<String>> deleteVideo(@PathVariable Integer id, @RequestParam Integer userId) {
+    public ResponseEntity<ApiResponse<String>> deleteVideo(@PathVariable Integer id) {
         try {
-            videoService.deleteVideo(id, userId);
+            Long currentUserId = SecurityUtil.getCurrentUserId();
+            String currentUserNickname = SecurityUtil.getCurrentUserNickname();
+            log.info("비디오 삭제 요청 - 사용자 ID: {}, 닉네임: {}, 비디오 ID: {}", currentUserId, currentUserNickname, id);
+            
+            if (currentUserId == null) {
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.error("인증이 필요합니다."));
+            }
+            
+            videoService.deleteVideo(id, currentUserId.intValue());
             return ResponseEntity.ok(ApiResponse.success("삭제 완료", "비디오가 삭제되었습니다."));
         } catch (RuntimeException e) {
             log.error("비디오 삭제 중 오류 발생: ", e);

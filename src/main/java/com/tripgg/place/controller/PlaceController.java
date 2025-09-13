@@ -1,5 +1,6 @@
 package com.tripgg.place.controller;
 
+import com.tripgg.auth.util.SecurityUtil;
 import com.tripgg.common.dto.ApiResponse;
 import com.tripgg.place.dto.PlaceSearchRequest;
 import com.tripgg.place.dto.PlaceSearchResult;
@@ -23,6 +24,10 @@ public class PlaceController {
     // 장소 생성
     @PostMapping
     public ResponseEntity<ApiResponse<Place>> createPlace(@RequestBody Place place) {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        String currentUserNickname = SecurityUtil.getCurrentUserNickname();
+        log.info("장소 생성 요청 - 사용자 ID: {}, 닉네임: {}", currentUserId, currentUserNickname);
+        
         Place createdPlace = placeService.createPlace(place);
         return ResponseEntity.ok(ApiResponse.success("장소가 성공적으로 생성되었습니다.", createdPlace));
     }
@@ -30,6 +35,10 @@ public class PlaceController {
     // 장소 조회
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Place>> getPlaceById(@PathVariable Long id) {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        String currentUserNickname = SecurityUtil.getCurrentUserNickname();
+        log.info("장소 조회 요청 - 사용자 ID: {}, 닉네임: {}, 장소 ID: {}", currentUserId, currentUserNickname, id);
+        
         Place place = placeService.getPlaceById(id)
                 .orElseThrow(() -> new RuntimeException("장소를 찾을 수 없습니다."));
         return ResponseEntity.ok(ApiResponse.success("장소를 성공적으로 조회했습니다.", place));

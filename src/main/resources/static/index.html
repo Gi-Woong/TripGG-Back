@@ -200,36 +200,55 @@
         <div class="button-section">
             <a href="/static/login.html" class="btn">카카오 로그인</a>
             <a href="/static/api-docs.html" class="btn">📚 API 문서</a>
-            <a href="/users" class="btn btn-secondary">사용자 API 테스트</a>
             <button onclick="testAPI()" class="btn btn-secondary">API 상태 확인</button>
+        </div>
+        
+        <div class="status-section">
+            <div class="status-title">🔑 JWT 토큰 테스트</div>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <input type="text" id="jwtToken" placeholder="JWT 토큰을 입력하세요" 
+                       style="width: 400px; padding: 10px; border: none; border-radius: 25px; margin-right: 10px; text-align: center;">
+                <button onclick="setToken()" class="btn" style="padding: 10px 20px; margin: 0;">토큰 설정</button>
+            </div>
+            <div id="tokenStatus" style="text-align: center; margin-top: 10px; font-size: 0.9em;"></div>
         </div>
         
         <div class="api-section">
             <h2 style="text-align: center; margin: 40px 0 20px 0;">🔗 API 엔드포인트 테스트</h2>
             <div class="api-grid">
                 <div class="api-group">
-                    <h3>👥 사용자 관리 (기존)</h3>
-                    <a href="/users" class="api-btn" target="_blank">GET /users (전체 사용자)</a>
-                    <a href="/users/1" class="api-btn" target="_blank">GET /users/{id} (사용자 상세)</a>
-                    <a href="/users/kakao/4410946094" class="api-btn" target="_blank">GET /users/kakao/{kakaoId}</a>
+                    <h3>👥 사용자 관리 (JWT 인증 필요)</h3>
+                    <button onclick="testAPIWithToken('/users')" class="api-btn">GET /users (전체 사용자)</button>
+                    <button onclick="testAPIWithToken('/users/1')" class="api-btn">GET /users/{id} (사용자 상세)</button>
+                    <button onclick="testAPIWithToken('/users/my')" class="api-btn">GET /users/my (현재 사용자)</button>
+                    <a href="/users/kakao/4410946094" class="api-btn" target="_blank">GET /users/kakao/{kakaoId} (공개)</a>
                     <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
-                        <strong>📝 참고: 새로운 API 구조</strong><br>
-                        • 기존 /users 엔드포인트는 유지<br>
-                        • 새로운 /api/user/* 엔드포인트가 추가됨<br>
-                        • 인증이 필요한 API는 세션토큰 필요
+                        <strong>🔑 JWT 토큰 필요</strong><br>
+                        • 대부분의 사용자 API는 JWT 토큰 인증 필요<br>
+                        • 카카오 ID로 조회는 공개 API<br>
+                        • 위의 버튼들을 클릭하면 JWT 토큰과 함께 테스트
                     </div>
                 </div>
                 
                 <div class="api-group">
-                    <h3>📅 일정 관리</h3>
-                    <a href="/schedules" class="api-btn" target="_blank">GET /schedules (전체 일정)</a>
-                    <a href="/schedules/1" class="api-btn" target="_blank">GET /schedules/{id} (일정 상세)</a>
+                    <h3>📅 일정 관리 (JWT 인증 필요)</h3>
+                    <button onclick="testAPIWithToken('/schedules')" class="api-btn">GET /schedules (전체 일정)</button>
+                    <button onclick="testAPIWithToken('/schedules/1')" class="api-btn">GET /schedules/{id} (일정 상세)</button>
+                    <button onclick="testAPIWithToken('/schedules/my-schedules')" class="api-btn">GET /schedules/my-schedules (내 일정)</button>
+                    <button onclick="testAPIWithToken('/schedules/my-ai-schedules')" class="api-btn">GET /schedules/my-ai-schedules (내 AI 일정)</button>
+                    <button onclick="testAPIWithToken('/schedules/search?title=서울')" class="api-btn">GET /schedules/search (내 일정 검색)</button>
+                    <button onclick="testAPIWithToken('/schedules/my-count')" class="api-btn">GET /schedules/my-count (내 일정 개수)</button>
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
+                        <strong>🔑 JWT 토큰 필요</strong><br>
+                        • 모든 일정 관리 API는 JWT 토큰 인증 필요<br>
+                        • 내 일정 관련 API는 현재 로그인한 사용자 기준
+                    </div>
                 </div>
                 
                 <div class="api-group">
-                    <h3>🏛️ 장소 관리</h3>
-                    <a href="/places" class="api-btn" target="_blank">GET /places (전체 장소)</a>
-                    <a href="/places/1" class="api-btn" target="_blank">GET /places/{id} (장소 상세)</a>
+                    <h3>🏛️ 장소 관리 (JWT 인증 필요)</h3>
+                    <button onclick="testAPIWithToken('/api/places')" class="api-btn">GET /api/places (전체 장소)</button>
+                    <button onclick="testAPIWithToken('/api/places/1')" class="api-btn">GET /api/places/{id} (장소 상세)</button>
                     <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
                         <strong>🏷️ 카테고리 기반 장소 검색 API</strong><br>
                         • GET /api/places/search - 카테고리별 장소 검색 (카카오맵 API 사용)<br>
@@ -258,15 +277,15 @@
                 </div>
                 
                 <div class="api-group">
-                    <h3>🎥 비디오 관리</h3>
-                    <a href="/api/videos" class="api-btn" target="_blank">GET /api/videos (전체 비디오)</a>
-                    <a href="/api/videos/1" class="api-btn" target="_blank">GET /api/videos/{id} (비디오 상세)</a>
+                    <h3>🎥 비디오 관리 (JWT 인증 필요)</h3>
+                    <button onclick="testAPIWithToken('/api/videos')" class="api-btn">GET /api/videos (전체 비디오)</button>
+                    <button onclick="testAPIWithToken('/api/videos/1')" class="api-btn">GET /api/videos/{id} (비디오 상세)</button>
+                    <button onclick="testAPIWithToken('/api/videos/my-videos')" class="api-btn">GET /api/videos/my-videos (내 비디오)</button>
                     
                     <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
-                        <strong>🧪 비디오 삭제 테스트</strong><br>
+                        <strong>🧪 비디오 삭제 테스트 (JWT 토큰 필요)</strong><br>
                         비디오 ID: <input type="number" id="deleteVideoId" value="1" style="width: 60px; margin: 0 5px; padding: 2px;"> 
-                        사용자 ID: <input type="number" id="deleteUserId" value="1" style="width: 60px; margin: 0 5px; padding: 2px;">
-                        <button onclick="deleteVideo()" style="background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-left: 10px;">비디오 삭제</button>
+                        <button onclick="deleteVideoWithToken()" style="background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-left: 10px;">비디오 삭제</button>
                         <div id="deleteResult" style="margin-top: 10px; padding: 10px; border-radius: 4px; display: none;"></div>
                     </div>
                 </div>
@@ -275,36 +294,42 @@
                     <h3>🔐 인증 & 회원 관리</h3>
                     <a href="/auth/kakao/login" class="api-btn" target="_blank">GET /auth/kakao/login (카카오 로그인)</a>
                     <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
-                        <strong>📋 POST API 엔드포인트</strong><br>
-                        • POST /api/auth/login - 카카오 토큰으로 로그인<br>
-                        • POST /api/auth/signup - 이메일, 닉키임으로 회원가입<br>
-                        • PUT /api/user/profile/update - 프로필 정보 수정
+                        <strong>🔑 JWT 토큰 획득 방법</strong><br>
+                        1. 카카오 로그인 버튼 클릭<br>
+                        2. 카카오 로그인 완료 후 JWT 토큰 복사<br>
+                        3. 위의 "JWT 토큰 테스트" 섹션에 토큰 입력<br>
+                        4. "토큰 설정" 버튼 클릭
                     </div>
-                    <a href="/api/user/profile" class="api-btn" target="_blank">GET /api/user/profile (내 정보 조회)</a>
-                    <a href="/api/user/video-list" class="api-btn" target="_blank">GET /api/user/video-list (내 영상 목록)</a>
-                    <a href="/api/user/video/detail/1" class="api-btn" target="_blank">GET /api/user/video/detail/{videoId} (영상 상세)</a>
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
+                        <strong>📋 POST API 엔드포인트</strong><br>
+                        • POST /auth/kakao/login - 카카오 인가코드로 로그인 (JWT 토큰 발급)<br>
+                        • POST /schedules - 일정 생성 (JWT 토큰 필요)<br>
+                        • POST /api/videos - 비디오 생성 (JWT 토큰 필요)
+                    </div>
                 </div>
                 
                 <div class="api-group">
-                    <h3>💬 채팅</h3>
-                    <a href="/api/chat/rooms" class="api-btn" target="_blank">GET /api/chat/rooms (모든 채팅방)</a>
-                                         <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
-                         <strong>📍 region_2depth_name 기반 동적 채팅방 생성</strong><br>
-                         • GET /api/chat?latitude={lat}&longitude={lng} - 사용자 위치로 적절한 roomId 반환<br>
-                         • GET /api/chat/{roomId}/messages - 채팅방 메시지 조회<br>
-                         • POST /api/chat/{roomId}/messages/send - 메시지 전송<br>
-                         • 카카오 주소 API로 region_2depth_name 추출 후 동적 채팅방 생성<br>
-                         • 채팅방 이름: "{region_2depth_name} 채팅방" (예: "안양시 채팅방", "용인시 채팅방")<br>
-                         • 기존 지역 채팅방이 없으면 자동으로 새로 생성
-                     </div>
-                     <a href="/api/chat?latitude=37.26631826253257&longitude=127.00364147711848" class="api-btn" target="_blank">GET /api/chat (수원시 테스트)</a>
-                     <a href="/api/chat?latitude=37.73433271604571&longitude=127.0314356340815" class="api-btn" target="_blank">GET /api/chat (새로운 지역 테스트)</a> 
+                    <h3>💬 채팅 (JWT 인증 필요)</h3>
+                    <button onclick="testAPIWithToken('/api/chat/rooms')" class="api-btn">GET /api/chat/rooms (모든 채팅방)</button>
+                    <button onclick="testAPIWithToken('/api/chat?latitude=37.26631826253257&longitude=127.00364147711848')" class="api-btn">GET /api/chat (수원시 테스트)</button>
+                    <button onclick="testAPIWithToken('/api/chat?latitude=37.73433271604571&longitude=127.0314356340815')" class="api-btn">GET /api/chat (새로운 지역 테스트)</button>
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
+                        <strong>📍 region_2depth_name 기반 동적 채팅방 생성</strong><br>
+                        • GET /api/chat?latitude={lat}&longitude={lng} - 사용자 위치로 적절한 roomId 반환<br>
+                        • GET /api/chat/{roomId}/messages - 채팅방 메시지 조회<br>
+                        • POST /api/chat/{roomId}/messages/send - 메시지 전송<br>
+                        • 카카오 주소 API로 region_2depth_name 추출 후 동적 채팅방 생성<br>
+                        • 채팅방 이름: "{region_2depth_name} 채팅방" (예: "안양시 채팅방", "용인시 채팅방")<br>
+                        • 기존 지역 채팅방이 없으면 자동으로 새로 생성
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        let currentToken = null;
+        
         // 현재 시간 업데이트
         function updateTime() {
             const now = new Date();
@@ -323,22 +348,46 @@
         updateTime();
         setInterval(updateTime, 1000);
         
-        // API 테스트
-        async function testAPI() {
+        // JWT 토큰 설정
+        function setToken() {
+            const token = document.getElementById('jwtToken').value.trim();
+            if (!token) {
+                document.getElementById('tokenStatus').innerHTML = '<span style="color: #e74c3c;">❌ 토큰을 입력해주세요.</span>';
+                return;
+            }
+            
+            currentToken = token;
+            document.getElementById('tokenStatus').innerHTML = '<span style="color: #27ae60;">✅ 토큰이 설정되었습니다.</span>';
+        }
+        
+        // JWT 토큰과 함께 API 테스트
+        async function testAPIWithToken(endpoint) {
+            if (!currentToken) {
+                alert('먼저 JWT 토큰을 설정해주세요.');
+                return;
+            }
+            
             const resultDiv = document.getElementById('apiResult');
             resultDiv.style.display = 'block';
             resultDiv.className = 'api-status';
-            resultDiv.textContent = 'API 테스트 중...';
+            resultDiv.textContent = `API 테스트 중... (${endpoint})`;
             
             try {
-                const response = await fetch('/users');
+                const response = await fetch(endpoint, {
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
                 const data = await response.json();
                 
                 if (response.ok) {
                     resultDiv.className = 'api-status success';
                     resultDiv.innerHTML = `
                         <strong>✅ API 테스트 성공!</strong><br>
-                        응답: ${JSON.stringify(data, null, 2)}
+                        <strong>엔드포인트:</strong> ${endpoint}<br>
+                        <strong>응답:</strong><br>
+                        <pre style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 5px; overflow-x: auto; font-size: 0.9em;">${JSON.stringify(data, null, 2)}</pre>
                     `;
                     document.getElementById('apiStatus').textContent = '정상';
                 } else {
@@ -348,28 +397,61 @@
                 resultDiv.className = 'api-status error';
                 resultDiv.innerHTML = `
                     <strong>❌ API 테스트 실패!</strong><br>
-                    오류: ${error.message}
+                    <strong>엔드포인트:</strong> ${endpoint}<br>
+                    <strong>오류:</strong> ${error.message}
                 `;
                 document.getElementById('apiStatus').textContent = '오류';
             }
         }
         
-        // 페이지 로드 시 API 상태 자동 확인
-        window.onload = function() {
-            setTimeout(testAPI, 1000);
-        };
+        // 공개 API 테스트 (토큰 없이)
+        async function testAPI() {
+            const resultDiv = document.getElementById('apiResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'api-status';
+            resultDiv.textContent = '공개 API 테스트 중...';
+            
+            try {
+                const response = await fetch('/api/places/search?category=FD6');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'api-status success';
+                    resultDiv.innerHTML = `
+                        <strong>✅ 공개 API 테스트 성공!</strong><br>
+                        <strong>엔드포인트:</strong> /api/places/search (카테고리별 장소 검색)<br>
+                        <strong>응답:</strong><br>
+                        <pre style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 5px; overflow-x: auto; font-size: 0.9em;">${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    document.getElementById('apiStatus').textContent = '정상';
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.message || '알 수 없는 오류'}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'api-status error';
+                resultDiv.innerHTML = `
+                    <strong>❌ 공개 API 테스트 실패!</strong><br>
+                    <strong>오류:</strong> ${error.message}
+                `;
+                document.getElementById('apiStatus').textContent = '오류';
+            }
+        }
         
-        // 비디오 삭제 함수
-        async function deleteVideo() {
+        // JWT 토큰과 함께 비디오 삭제
+        async function deleteVideoWithToken() {
+            if (!currentToken) {
+                alert('먼저 JWT 토큰을 설정해주세요.');
+                return;
+            }
+            
             const videoId = document.getElementById('deleteVideoId').value;
-            const userId = document.getElementById('deleteUserId').value;
             const resultDiv = document.getElementById('deleteResult');
             
-            if (!videoId || !userId) {
+            if (!videoId) {
                 resultDiv.style.display = 'block';
                 resultDiv.style.background = '#e74c3c';
                 resultDiv.style.color = 'white';
-                resultDiv.innerHTML = '<strong>❌ 오류!</strong><br>비디오 ID와 사용자 ID를 모두 입력해주세요.';
+                resultDiv.innerHTML = '<strong>❌ 오류!</strong><br>비디오 ID를 입력해주세요.';
                 return;
             }
             
@@ -379,9 +461,10 @@
             resultDiv.innerHTML = '<strong>⏳ 삭제 중...</strong><br>비디오를 삭제하고 있습니다.';
             
             try {
-                const response = await fetch(`/api/videos/${videoId}?userId=${userId}`, {
+                const response = await fetch(`/api/videos/${videoId}`, {
                     method: 'DELETE',
                     headers: {
+                        'Authorization': `Bearer ${currentToken}`,
                         'Content-Type': 'application/json'
                     }
                 });
@@ -393,15 +476,18 @@
                     resultDiv.style.color = 'white';
                     resultDiv.innerHTML = `
                         <strong>✅ 비디오 삭제 성공!</strong><br>
-                        응답: ${JSON.stringify(data, null, 2)}
+                        <strong>비디오 ID:</strong> ${videoId}<br>
+                        <strong>응답:</strong><br>
+                        <pre style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 5px; overflow-x: auto; font-size: 0.9em;">${JSON.stringify(data, null, 2)}</pre>
                     `;
                 } else {
                     resultDiv.style.background = '#e74c3c';
                     resultDiv.style.color = 'white';
                     resultDiv.innerHTML = `
                         <strong>❌ 비디오 삭제 실패!</strong><br>
-                        상태: ${response.status}<br>
-                        오류: ${data.message || '알 수 없는 오류'}
+                        <strong>비디오 ID:</strong> ${videoId}<br>
+                        <strong>상태:</strong> ${response.status}<br>
+                        <strong>오류:</strong> ${data.message || '알 수 없는 오류'}
                     `;
                 }
             } catch (error) {
@@ -409,12 +495,16 @@
                 resultDiv.style.color = 'white';
                 resultDiv.innerHTML = `
                     <strong>❌ 비디오 삭제 실패!</strong><br>
-                    오류: ${error.message}
+                    <strong>비디오 ID:</strong> ${videoId}<br>
+                    <strong>오류:</strong> ${error.message}
                 `;
             }
         }
         
-
+        // 페이지 로드 시 공개 API 상태 자동 확인
+        window.onload = function() {
+            setTimeout(testAPI, 1000);
+        };
     </script>
 </body>
 </html>

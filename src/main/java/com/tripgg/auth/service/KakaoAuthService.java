@@ -20,6 +20,7 @@ import java.util.Optional;
 public class KakaoAuthService {
 
     private final UserRepository userRepository;
+    private final JwtService jwtService;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${kakao.client-id}")
@@ -156,10 +157,9 @@ public class KakaoAuthService {
     }
 
     /**
-     * JWT 토큰 생성 (간단한 예시)
+     * JWT 토큰 생성
      */
     private String generateJwtToken(User user) {
-        // 실제로는 JWT 서비스를 사용해야 합니다
-        return "jwt_token_" + user.getId() + "_" + System.currentTimeMillis();
+        return jwtService.generateToken(user);
     }
 }

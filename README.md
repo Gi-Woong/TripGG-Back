@@ -8,6 +8,7 @@
 - **Spring Boot 3.2.0**
 - **Spring Data JPA**
 - **Spring Security**
+- **JWT (JSON Web Token)**
 - **MySQL Database**
 - **Maven**
 - **Lombok**
@@ -139,27 +140,31 @@ src/
 애플리케이션 실행 후 다음 명령어로 API를 테스트할 수 있습니다:
 
 ```bash
-# 사용자 목록 조회
-curl http://localhost:8080/api/users
+# 1. 카카오 로그인 (JWT 토큰 획득)
+curl -X POST "http://localhost:8080/auth/kakao/login?authorizationCode=<카카오_인가코드>"
 
-# 일정 목록 조회  
-curl http://localhost:8080/api/schedules
+# 2. JWT 토큰을 사용한 API 호출 (Authorization 헤더 필요)
+curl -H "Authorization: Bearer <JWT_TOKEN>" http://localhost:8080/users
 
-# 장소 목록 조회
-curl http://localhost:8080/api/places
+# 3. 현재 사용자 정보 조회
+curl -H "Authorization: Bearer <JWT_TOKEN>" http://localhost:8080/users/my
 
-# 채팅 목록 조회
-curl http://localhost:8080/api/chats
+# 4. 내 일정 목록 조회
+curl -H "Authorization: Bearer <JWT_TOKEN>" http://localhost:8080/schedules/my-schedules
 
-# 비디오 목록 조회
-curl http://localhost:8080/api/videos
+# 5. 내 비디오 목록 조회
+curl -H "Authorization: Bearer <JWT_TOKEN>" http://localhost:8080/api/videos/my-videos
+
+# 6. 장소 검색 (인증 불필요)
+curl "http://localhost:8080/api/places/search?category=FD6&x=127.0276&y=37.4979&radius=5000"
 ```
 
 ### 🚨 중요 사항
 - MySQL 데이터베이스가 자동으로 연결됩니다
-- 첫 실행 시 테이블이 자동으로 생성됩니다 (`ddl-auto: create`)
+- 첫 실행 시 테이블이 자동으로 생성됩니다 (`ddl-auto: update`)
 - 테스트 데이터가 자동으로 삽입됩니다
-- 현재 모든 API가 인증 없이 접근 가능합니다 (개발용 설정)
+- **JWT 인증 시스템**: 대부분의 API는 JWT 토큰 인증이 필요합니다
+- **공개 API**: `/auth/**`, `/static/**`, `/api/places/search` 등은 인증 없이 접근 가능
 
 ### 🔐 환경 변수 설정
 
@@ -245,27 +250,30 @@ JWT_SECRET=your_jwt_secret_key
 
 ## 📚 API 엔드포인트
 
+### 🔐 인증 API (공개)
+- `GET /auth/kakao/login` - 카카오 로그인 시작 (리다이렉트)
+- `POST /auth/kakao/login` - 카카오 로그인 처리 (JWT 토큰 발급)
 
+### 👥 사용자 관리 API (JWT 인증 필요)
+- `GET /users` - 전체 사용자 목록 조회
+- `GET /users/{id}` - 특정 사용자 조회
+- `GET /users/my` - **현재 로그인한 사용자 정보 조회**
+- `POST /users` - 사용자 생성
+- `PUT /users/{id}` - 사용자 정보 수정
+- `DELETE /users/{id}` - 사용자 삭제
+- `GET /users/kakao/{kakaoId}` - 카카오 ID로 사용자 조회
 
-### 사용자 관리 API
-- `GET /api/users` - 전체 사용자 목록 조회
-- `GET /api/users/{id}` - 특정 사용자 조회
-- `POST /api/users` - 사용자 생성
-- `PUT /api/users/{id}` - 사용자 정보 수정
-- `DELETE /api/users/{id}` - 사용자 삭제
-- `GET /api/users/kakao/{kakaoId}` - 카카오 ID로 사용자 조회
+### 📅 일정 관리 API (JWT 인증 필요)
+- `POST /schedules` - **일정 생성** (현재 사용자 기준)
+- `GET /schedules/{id}` - 특정 일정 조회
+- `GET /schedules/my-schedules` - **내 일정 목록 조회**
+- `GET /schedules/my-ai-schedules` - **내 AI 생성 일정 조회**
+- `GET /schedules/search` - **내 일정 검색**
+- `PUT /schedules/{id}` - 일정 수정
+- `DELETE /schedules/{id}` - 일정 삭제
+- `GET /schedules/my-count` - **내 일정 개수 조회**
 
-### 일정 관리 API
-- `POST /api/schedules` - 일정 생성
-- `GET /api/schedules/{id}` - 특정 일정 조회
-- `GET /api/schedules/user/{userId}` - 사용자별 일정 목록 조회
-- `GET /api/schedules/user/{userId}/ai-generated` - AI 생성 일정 조회
-- `GET /api/schedules/user/{userId}/search` - 일정 검색
-- `PUT /api/schedules/{id}` - 일정 수정
-- `DELETE /api/schedules/{id}` - 일정 삭제
-- `GET /api/schedules/user/{userId}/count` - 사용자별 일정 개수 조회
-
-### 장소 관리 API
+### 🏛️ 장소 관리 API (JWT 인증 필요)
 - `POST /api/places` - 장소 생성
 - `GET /api/places/{id}` - 특정 장소 조회
 - `GET /api/places` - 전체 장소 목록 조회
@@ -277,11 +285,31 @@ JWT_SECRET=your_jwt_secret_key
 - `DELETE /api/places/{id}` - 장소 삭제
 - `GET /api/places/category/{category}/count` - 카테고리별 장소 개수 조회
 
-### 🏷️ 카테고리 기반 장소 검색 API (카카오맵 연동)
-- `GET /api/places/search` - **카테고리별 장소 검색** (카카오맵 API 사용)
-- `GET /api/places/{placeId}` - **장소 상세 조회**
+### 🏷️ 카테고리 기반 장소 검색 API (카카오맵 연동, 공개)
+- `GET /api/places/search` - **카테고리별 장소 검색** (카카오맵 API 사용, 인증 불필요)
+- `GET /api/places/detail/{placeId}` - **장소 상세 조회** (인증 불필요)
 - **검색 파라미터**: category, x(경도), y(위도), radius, page, size, sort
 - **카테고리 코드**: MT1(대형마트), CS2(편의점), FD6(음식점), CE7(카페), HP8(병원), PM9(약국) 등
+
+### 🎥 비디오 관리 API (JWT 인증 필요)
+- `GET /api/videos` - 전체 비디오 목록 조회
+- `GET /api/videos/{id}` - 특정 비디오 조회
+- `GET /api/videos/my-videos` - **내 비디오 목록 조회**
+- `POST /api/videos` - **비디오 생성** (현재 사용자 기준)
+- `PUT /api/videos/{id}` - 비디오 수정
+- `DELETE /api/videos/{id}` - **비디오 삭제** (현재 사용자 기준)
+- `GET /api/videos/search/title` - 제목으로 비디오 검색
+- `GET /api/videos/search/tag` - 태그로 비디오 검색
+- `GET /api/videos/popular/likes` - 인기 비디오 조회 (좋아요 기준)
+- `GET /api/videos/popular/views` - 인기 비디오 조회 (조회수 기준)
+- `POST /api/videos/{id}/like` - 좋아요 증가
+
+### 💬 채팅 API (JWT 인증 필요)
+- `GET /api/chat` - 채팅방 자동 선택 (위치 기반)
+- `GET /api/chat/{roomId}` - 채팅방 조회
+- `GET /api/chat/{roomId}/messages` - 채팅방 메시지 조회
+- `POST /api/chat/{roomId}/messages/send` - **메시지 전송** (현재 사용자 기준)
+- `GET /api/chat/rooms` - 모든 채팅방 목록 조회
 
 ## 🗄️ 데이터베이스
 

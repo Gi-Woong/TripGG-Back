@@ -1,5 +1,6 @@
 package com.tripgg.chat.controller;
 
+import com.tripgg.auth.util.SecurityUtil;
 import com.tripgg.chat.entity.Chat;
 import com.tripgg.chat.entity.ChatRoom;
 import com.tripgg.chat.service.ChatService;
@@ -195,7 +196,15 @@ public class ChatController {
             @RequestParam Double latitude,
             @RequestParam Double longitude) {
         
-        log.info("메시지 전송: roomId={}, 위도={}, 경도={}, message={}", roomId, latitude, longitude, message);
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        String currentUserNickname = SecurityUtil.getCurrentUserNickname();
+        log.info("메시지 전송: roomId={}, 위도={}, 경도={}, message={}, 사용자 ID: {}, 닉네임: {}", 
+                roomId, latitude, longitude, message, currentUserId, currentUserNickname);
+        
+        if (currentUserId == null) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("인증이 필요합니다."));
+        }
         
         try {
             Chat chat = chatService.sendMessageWithLocationCheck(roomId, message, latitude, longitude);

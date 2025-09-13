@@ -1,5 +1,8 @@
 package com.tripgg.auth.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tripgg.auth.service.KakaoAuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Controller
@@ -27,10 +32,17 @@ public class KakaoCallbackController {
             
             // 인가 코드로 로그인 처리
             Map<String, Object> result = kakaoAuthService.kakaoLogin(code);
-            
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+            String resultJson = mapper.writeValueAsString(result);
+            String encodedJson = URLEncoder.encode(resultJson, StandardCharsets.UTF_8);
+
+
             // 로그인 성공 시 메인 페이지로 리다이렉트
             // TODO: 실제 메인 페이지 URL로 변경
-            return "redirect:/static/login.html?login=success";
+            return "redirect:/static/login.html?login=success&user=" + encodedJson;
             
         } catch (Exception e) {
             log.error("카카오 로그인 콜백 처리 실패: {}", e.getMessage());

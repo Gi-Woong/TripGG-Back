@@ -1,5 +1,6 @@
 package com.tripgg.user.controller;
 
+import com.tripgg.auth.util.SecurityUtil;
 import com.tripgg.common.dto.ApiResponse;
 import com.tripgg.user.entity.User;
 import com.tripgg.user.service.UserService;
@@ -26,6 +27,11 @@ public class UserController {
     
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<User>> getUserById(@PathVariable Long id) {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        String currentUserNickname = SecurityUtil.getCurrentUserNickname();
+        log.info("사용자 정보 조회 요청 - 조회 대상 ID: {}, 현재 사용자 ID: {}, 닉네임: {}",
+                id, currentUserId, currentUserNickname);
+        
         User user = userService.getUserById(id)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         return ResponseEntity.ok(ApiResponse.success("사용자 정보를 성공적으로 조회했습니다.", user));
