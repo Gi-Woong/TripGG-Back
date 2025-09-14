@@ -1,11 +1,15 @@
 package com.tripgg.schedule.service;
 
 import com.tripgg.schedule.entity.Schedule;
+import com.tripgg.schedule.entity.ScheduleItem;
+import com.tripgg.schedule.repository.ScheduleItemRepository;
 import com.tripgg.schedule.repository.ScheduleRepository;
 import com.tripgg.user.entity.User;
+import com.tripgg.user.repository.UserRepository;
 import com.tripgg.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,10 +21,17 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ScheduleService {
-    
+
     private final ScheduleRepository scheduleRepository;
+    private final ScheduleItemRepository scheduleItemRepository;
+    private final UserRepository userRepository;
     private final UserService userService;
-    
+
+    @Transactional
+    public List<ScheduleItem> getTodayScheduleItem(Long userId) {
+        return scheduleItemRepository.findTodayStartScheduleItems(userId);
+    }
+
     // 일정 생성
     @Transactional
     public Schedule createSchedule(Schedule schedule, Long userId) {
