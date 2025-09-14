@@ -35,7 +35,7 @@ src/
 │   │       │   ├── service/
 │   │       │   ├── repository/
 │   │       │   └── entity/
-│   │       ├── place/                    # 장소 도메인
+│   │       ├── schedulePlaces/                    # 장소 도메인
 │   │       │   ├── controller/
 │   │       │   ├── service/
 │   │       │   ├── repository/
@@ -156,7 +156,7 @@ curl -H "Authorization: Bearer <JWT_TOKEN>" http://localhost:8080/schedules/my-s
 curl -H "Authorization: Bearer <JWT_TOKEN>" http://localhost:8080/api/videos/my-videos
 
 # 6. 장소 검색 (인증 불필요)
-curl "http://localhost:8080/api/places/search?category=FD6&x=127.0276&y=37.4979&radius=5000"
+curl "http://localhost:8080/api/schedulePlaces/search?category=FD6&x=127.0276&y=37.4979&radius=5000"
 ```
 
 ### 🚨 중요 사항
@@ -164,7 +164,7 @@ curl "http://localhost:8080/api/places/search?category=FD6&x=127.0276&y=37.4979&
 - 첫 실행 시 테이블이 자동으로 생성됩니다 (`ddl-auto: update`)
 - 테스트 데이터가 자동으로 삽입됩니다
 - **JWT 인증 시스템**: 대부분의 API는 JWT 토큰 인증이 필요합니다
-- **공개 API**: `/auth/**`, `/static/**`, `/api/places/search` 등은 인증 없이 접근 가능
+- **공개 API**: `/auth/**`, `/static/**`, `/api/schedulePlaces/search` 등은 인증 없이 접근 가능
 
 ### 🔐 환경 변수 설정
 
@@ -274,20 +274,20 @@ JWT_SECRET=your_jwt_secret_key
 - `GET /schedules/my-count` - **내 일정 개수 조회**
 
 ### 🏛️ 장소 관리 API (JWT 인증 필요)
-- `POST /api/places` - 장소 생성
-- `GET /api/places/{id}` - 특정 장소 조회
-- `GET /api/places` - 전체 장소 목록 조회
-- `GET /api/places/category/{category}` - 카테고리별 장소 조회
-- `GET /api/places/search/name` - 이름으로 장소 검색
-- `GET /api/places/search/address` - 주소로 장소 검색
-- `GET /api/places/search/coordinates` - 좌표 범위 내 장소 조회
-- `PUT /api/places/{id}` - 장소 수정
-- `DELETE /api/places/{id}` - 장소 삭제
-- `GET /api/places/category/{category}/count` - 카테고리별 장소 개수 조회
+- `POST /api/schedulePlaces` - 장소 생성
+- `GET /api/schedulePlaces/{id}` - 특정 장소 조회
+- `GET /api/schedulePlaces` - 전체 장소 목록 조회
+- `GET /api/schedulePlaces/category/{category}` - 카테고리별 장소 조회
+- `GET /api/schedulePlaces/search/name` - 이름으로 장소 검색
+- `GET /api/schedulePlaces/search/address` - 주소로 장소 검색
+- `GET /api/schedulePlaces/search/coordinates` - 좌표 범위 내 장소 조회
+- `PUT /api/schedulePlaces/{id}` - 장소 수정
+- `DELETE /api/schedulePlaces/{id}` - 장소 삭제
+- `GET /api/schedulePlaces/category/{category}/count` - 카테고리별 장소 개수 조회
 
 ### 🏷️ 카테고리 기반 장소 검색 API (카카오맵 연동, 공개)
-- `GET /api/places/search` - **카테고리별 장소 검색** (카카오맵 API 사용, 인증 불필요)
-- `GET /api/places/detail/{placeId}` - **장소 상세 조회** (인증 불필요)
+- `GET /api/schedulePlaces/search` - **카테고리별 장소 검색** (카카오맵 API 사용, 인증 불필요)
+- `GET /api/schedulePlaces/detail/{placeId}` - **장소 상세 조회** (인증 불필요)
 - **검색 파라미터**: category, x(경도), y(위도), radius, page, size, sort
 - **카테고리 코드**: MT1(대형마트), CS2(편의점), FD6(음식점), CE7(카페), HP8(병원), PM9(약국) 등
 

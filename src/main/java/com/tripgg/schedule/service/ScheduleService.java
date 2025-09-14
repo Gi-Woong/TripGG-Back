@@ -3,14 +3,17 @@ package com.tripgg.schedule.service;
 import com.tripgg.schedule.dto.AiScheduleResponse;
 import com.tripgg.schedule.entity.Schedule;
 import com.tripgg.schedule.entity.ScheduleItem;
+import com.tripgg.schedule.repository.ScheduleItemRepository;
 import com.tripgg.schedule.repository.ScheduleRepository;
 import com.tripgg.schedule.repository.ScheduleItemRepository;
-import com.tripgg.place.entity.Place;
+import com.tripgg.place.entity.SchedulePlaces;
 import com.tripgg.place.service.PlaceService;
 import com.tripgg.user.entity.User;
+import com.tripgg.user.repository.UserRepository;
 import com.tripgg.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,12 +27,17 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ScheduleService {
-    
+
     private final ScheduleRepository scheduleRepository;
     private final ScheduleItemRepository scheduleItemRepository;
+    private final UserRepository userRepository;
     private final UserService userService;
-    private final PlaceService placeService;
-    
+
+    @Transactional
+    public List<ScheduleItem> getTodayScheduleItem(Long userId) {
+        return scheduleItemRepository.findTodayStartScheduleItems(userId);
+    }
+
     // 일정 생성
     @Transactional
     public Schedule createSchedule(Schedule schedule, Long userId) {
@@ -118,7 +126,7 @@ public class ScheduleService {
         for (var itemDto : aiResponse.getScheduleItems()) {
             ScheduleItem scheduleItem = ScheduleItem.builder()
                     .schedule(savedSchedule)
-                    .place(null) // 일단 null로 설정
+                    .schedulePlaces(null) // 일단 null로 설정
                     .day(itemDto.getDay())
                     .orderInDay(itemDto.getOrderInDay())
                     .memo(itemDto.getMemo())
@@ -139,17 +147,17 @@ public class ScheduleService {
         return aiResponse;
     }
     
-    // Place 저장 또는 조회
-    private Place saveOrGetPlace(com.tripgg.schedule.dto.PlaceDto placeDto) {
+    // SchedulePlaces 저장 또는 조회
+    private SchedulePlaces saveOrGetPlace(com.tripgg.schedule.dto.PlaceDto placeDto) {
         // 같은 이름과 주소의 장소가 있는지 확인
-        Optional<Place> existingPlace = placeService.findByNameAndAddress(placeDto.getName(), placeDto.getAddress());
+        Optional<SchedulePlaces> existingPlace = placeService.findByNameAndAddress(placeDto.getName(), placeDto.getAddress());
         
         if (existingPlace.isPresent()) {
             return existingPlace.get();
         }
         
         // 새로운 장소 저장
-        Place newPlace = Place.builder()
+        SchedulePlaces newPlace = SchedulePlaces.builder()
                 .name(placeDto.getName())
                 .category(placeDto.getCategory())
                 .description(placeDto.getDescription())

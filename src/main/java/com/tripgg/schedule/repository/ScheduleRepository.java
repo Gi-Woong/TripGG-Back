@@ -7,10 +7,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
-    
+
     // 사용자별 일정 목록 조회
     List<Schedule> findByUserIdOrderByCreatedAtDesc(Long userId);
     

@@ -4,7 +4,7 @@ import com.tripgg.auth.util.SecurityUtil;
 import com.tripgg.common.dto.ApiResponse;
 import com.tripgg.place.dto.PlaceSearchRequest;
 import com.tripgg.place.dto.PlaceSearchResult;
-import com.tripgg.place.entity.Place;
+import com.tripgg.place.entity.SchedulePlaces;
 import com.tripgg.place.service.PlaceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,73 +23,73 @@ public class PlaceController {
     
     // 장소 생성
     @PostMapping
-    public ResponseEntity<ApiResponse<Place>> createPlace(@RequestBody Place place) {
+    public ResponseEntity<ApiResponse<SchedulePlaces>> createPlace(@RequestBody SchedulePlaces schedulePlaces) {
         Long currentUserId = SecurityUtil.getCurrentUserId();
         String currentUserNickname = SecurityUtil.getCurrentUserNickname();
         log.info("장소 생성 요청 - 사용자 ID: {}, 닉네임: {}", currentUserId, currentUserNickname);
         
-        Place createdPlace = placeService.createPlace(place);
-        return ResponseEntity.ok(ApiResponse.success("장소가 성공적으로 생성되었습니다.", createdPlace));
+        SchedulePlaces createdSchedulePlaces = placeService.createPlace(schedulePlaces);
+        return ResponseEntity.ok(ApiResponse.success("장소가 성공적으로 생성되었습니다.", createdSchedulePlaces));
     }
     
     // 장소 조회
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Place>> getPlaceById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<SchedulePlaces>> getPlaceById(@PathVariable Long id) {
         Long currentUserId = SecurityUtil.getCurrentUserId();
         String currentUserNickname = SecurityUtil.getCurrentUserNickname();
         log.info("장소 조회 요청 - 사용자 ID: {}, 닉네임: {}, 장소 ID: {}", currentUserId, currentUserNickname, id);
         
-        Place place = placeService.getPlaceById(id)
+        SchedulePlaces schedulePlaces = placeService.getPlaceById(id)
                 .orElseThrow(() -> new RuntimeException("장소를 찾을 수 없습니다."));
-        return ResponseEntity.ok(ApiResponse.success("장소를 성공적으로 조회했습니다.", place));
+        return ResponseEntity.ok(ApiResponse.success("장소를 성공적으로 조회했습니다.", schedulePlaces));
     }
     
     // 전체 장소 목록 조회
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Place>>> getAllPlaces() {
-        List<Place> places = placeService.getAllPlaces();
-        return ResponseEntity.ok(ApiResponse.success("전체 장소 목록을 성공적으로 조회했습니다.", places));
+    public ResponseEntity<ApiResponse<List<SchedulePlaces>>> getAllPlaces() {
+        List<SchedulePlaces> schedulePlaces = placeService.getAllPlaces();
+        return ResponseEntity.ok(ApiResponse.success("전체 장소 목록을 성공적으로 조회했습니다.", schedulePlaces));
     }
     
     // 카테고리별 장소 조회
     @GetMapping("/category/{category}")
-    public ResponseEntity<ApiResponse<List<Place>>> getPlacesByCategory(@PathVariable String category) {
-        List<Place> places = placeService.getPlacesByCategory(category);
-        return ResponseEntity.ok(ApiResponse.success("카테고리별 장소를 성공적으로 조회했습니다.", places));
+    public ResponseEntity<ApiResponse<List<SchedulePlaces>>> getPlacesByCategory(@PathVariable String category) {
+        List<SchedulePlaces> schedulePlaces = placeService.getPlacesByCategory(category);
+        return ResponseEntity.ok(ApiResponse.success("카테고리별 장소를 성공적으로 조회했습니다.", schedulePlaces));
     }
     
     // 이름으로 장소 검색
     @GetMapping("/search/name")
-    public ResponseEntity<ApiResponse<List<Place>>> searchPlacesByName(@RequestParam String name) {
-        List<Place> places = placeService.searchPlacesByName(name);
-        return ResponseEntity.ok(ApiResponse.success("이름으로 장소 검색이 완료되었습니다.", places));
+    public ResponseEntity<ApiResponse<List<SchedulePlaces>>> searchPlacesByName(@RequestParam String name) {
+        List<SchedulePlaces> schedulePlaces = placeService.searchPlacesByName(name);
+        return ResponseEntity.ok(ApiResponse.success("이름으로 장소 검색이 완료되었습니다.", schedulePlaces));
     }
     
     // 주소로 장소 검색
     @GetMapping("/search/address")
-    public ResponseEntity<ApiResponse<List<Place>>> searchPlacesByAddress(@RequestParam String address) {
-        List<Place> places = placeService.searchPlacesByAddress(address);
-        return ResponseEntity.ok(ApiResponse.success("주소로 장소 검색이 완료되었습니다.", places));
+    public ResponseEntity<ApiResponse<List<SchedulePlaces>>> searchPlacesByAddress(@RequestParam String address) {
+        List<SchedulePlaces> schedulePlaces = placeService.searchPlacesByAddress(address);
+        return ResponseEntity.ok(ApiResponse.success("주소로 장소 검색이 완료되었습니다.", schedulePlaces));
     }
     
     // 좌표 범위 내 장소 조회
     @GetMapping("/search/coordinates")
-    public ResponseEntity<ApiResponse<List<Place>>> getPlacesByCoordinatesRange(
+    public ResponseEntity<ApiResponse<List<SchedulePlaces>>> getPlacesByCoordinatesRange(
             @RequestParam Double minLat,
             @RequestParam Double maxLat,
             @RequestParam Double minLng,
             @RequestParam Double maxLng) {
-        List<Place> places = placeService.getPlacesByCoordinatesRange(minLat, maxLat, minLng, maxLng);
-        return ResponseEntity.ok(ApiResponse.success("좌표 범위 내 장소를 성공적으로 조회했습니다.", places));
+        List<SchedulePlaces> schedulePlaces = placeService.getPlacesByCoordinatesRange(minLat, maxLat, minLng, maxLng);
+        return ResponseEntity.ok(ApiResponse.success("좌표 범위 내 장소를 성공적으로 조회했습니다.", schedulePlaces));
     }
     
     // 장소 수정
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Place>> updatePlace(
+    public ResponseEntity<ApiResponse<SchedulePlaces>> updatePlace(
             @PathVariable Long id,
-            @RequestBody Place placeDetails) {
-        Place updatedPlace = placeService.updatePlace(id, placeDetails);
-        return ResponseEntity.ok(ApiResponse.success("장소가 성공적으로 수정되었습니다.", updatedPlace));
+            @RequestBody SchedulePlaces schedulePlacesDetails) {
+        SchedulePlaces updatedSchedulePlaces = placeService.updatePlace(id, schedulePlacesDetails);
+        return ResponseEntity.ok(ApiResponse.success("장소가 성공적으로 수정되었습니다.", updatedSchedulePlaces));
     }
     
     // 장소 삭제
@@ -142,17 +142,17 @@ public class PlaceController {
         // DB에서 먼저 검색
         try {
             Long id = Long.parseLong(placeId);
-            Place place = placeService.getPlaceById(id)
+            SchedulePlaces schedulePlaces = placeService.getPlaceById(id)
                     .orElseThrow(() -> new RuntimeException("장소를 찾을 수 없습니다."));
             
             PlaceSearchResult result = new PlaceSearchResult();
-            result.setId(String.valueOf(place.getId()));
-            result.setPlaceName(place.getName());
-            result.setCategoryName(place.getCategory());
-            result.setAddressName(place.getAddress());
-            result.setLongitude(place.getLongitude());
-            result.setLatitude(place.getLatitude());
-            result.setDescription(place.getDescription());
+            result.setId(String.valueOf(schedulePlaces.getId()));
+            result.setPlaceName(schedulePlaces.getName());
+            result.setCategoryName(schedulePlaces.getCategory());
+            result.setAddressName(schedulePlaces.getAddress());
+            result.setLongitude(schedulePlaces.getLongitude());
+            result.setLatitude(schedulePlaces.getLatitude());
+            result.setDescription(schedulePlaces.getDescription());
             result.setSource("database");
             
             return ResponseEntity.ok(ApiResponse.success("장소 상세 정보를 성공적으로 조회했습니다.", result));
