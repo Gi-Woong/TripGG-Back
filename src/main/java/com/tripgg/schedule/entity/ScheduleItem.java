@@ -45,6 +45,9 @@ public class ScheduleItem {
     @Column(name = "start_date")
     private LocalDateTime startDate;
 
+    @Column(name = "end_date")
+    private LocalDateTime endDate;
+
     @Column(name = "start_time")
     private LocalTime startTime;
 

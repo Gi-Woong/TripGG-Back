@@ -85,6 +85,7 @@
 | `GET` | `/schedules/my-ai-schedules` | **내 AI 생성 일정 조회** | ```json<br>{<br>  "success": true,<br>  "message": "AI 생성 일정을 성공적으로 조회했습니다.",<br>  "data": [<br>    {<br>      "id": 2,<br>      "user": {<br>        "id": 1,<br>        "kakaoId": "test_kakao_id_001",<br>        "nickname": "테스트 사용자",<br>        "profileImageUrl": "https://example.com/profile.jpg",<br>        "createdAt": "2024-01-01T00:00:00",<br>        "updatedAt": "2024-01-01T00:00:00"<br>      },<br>      "title": "부산 여행 일정",<br>      "description": "2박 3일 부산 여행 계획",<br>      "isAiGenerated": true,<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    }<br>  ],<br>  "timestamp": 1703123456789<br>}``` |
 | `GET` | `/schedules/search` | **내 일정 검색** | ```json<br>{<br>  "success": true,<br>  "message": "일정 검색이 완료되었습니다.",<br>  "data": [<br>    {<br>      "id": 1,<br>      "user": {<br>        "id": 1,<br>        "kakaoId": "test_kakao_id_001",<br>        "nickname": "테스트 사용자",<br>        "profileImageUrl": "https://example.com/profile.jpg",<br>        "createdAt": "2024-01-01T00:00:00",<br>        "updatedAt": "2024-01-01T00:00:00"<br>      },<br>      "title": "서울 여행 일정",<br>      "description": "1박 2일 서울 여행 계획",<br>      "isAiGenerated": false,<br>      "createdAt": "2024-01-01T00:00:00",<br>      "updatedAt": "2024-01-01T00:00:00"<br>    }<br>  ],<br>  "timestamp": 1703123456789<br>}``` |
 | `GET` | `/schedules/my-count` | **내 일정 개수 조회** | ```json<br>{<br>  "success": true,<br>  "message": "일정 개수를 성공적으로 조회했습니다.",<br>  "data": 3,<br>  "timestamp": 1703123456789<br>}``` |
+| `POST` | `/schedules/ai-generate` | **AI 일정 생성** (GPT API 연동) | ```json<br>{<br>  "success": true,<br>  "message": "AI 일정이 성공적으로 생성되었습니다.",<br>  "data": {<br>    "schedule": {<br>      "id": 456,<br>      "userId": 123,<br>      "title": "서울 전역 여행",<br>      "description": "K-POP과 역사를 테마로 한 서울 여행",<br>      "isAiGenerated": true,<br>      "startDate": "2025-01-15T00:00:00.000Z",<br>      "endDate": "2025-01-17T00:00:00.000Z",<br>      "createdAt": "2025-01-10T10:30:00.000Z"<br>    },<br>    "scheduleItems": [<br>      {<br>        "id": 1001,<br>        "scheduleId": 456,<br>        "placeId": 2001,<br>        "day": 1,<br>        "orderInDay": 1,<br>        "memo": "조선왕조의 대표 궁궐",<br>        "startDate": "2025-01-15T00:00:00.000Z",<br>        "startTime": "09:00:00",<br>        "endTime": "10:00:00",<br>        "place": {<br>          "id": 2001,<br>          "name": "경복궁",<br>          "category": "관광",<br>          "description": "조선왕조의 대표 궁궐",<br>          "address": "서울특별시 종로구 사직로 161",<br>          "latitude": 37.5796,<br>          "longitude": 126.9770<br>        }<br>      }<br>    ]<br>  },<br>  "timestamp": 1757825204322<br>}``` |
 
 ---
 
@@ -168,6 +169,23 @@ curl -H "Authorization: Bearer <JWT_TOKEN>" http://localhost:8080/api/videos/my-
 curl -H "Authorization: Bearer <JWT_TOKEN>" -X POST http://localhost:8080/schedules \
   -H "Content-Type: application/json" \
   -d '{"title": "서울 여행", "description": "1박 2일 서울 여행 계획"}'
+
+# AI 일정 생성
+curl -H "Authorization: Bearer <JWT_TOKEN>" -X POST http://localhost:8080/schedules/ai-generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 123,
+    "title": "서울 전역 여행",
+    "description": "K-POP과 역사를 테마로 한 서울 여행",
+    "isAiGenerated": true,
+    "startDate": "2025-01-15T00:00:00.000Z",
+    "endDate": "2025-01-17T00:00:00.000Z",
+    "region": "seoul-all",
+    "keywords": ["kpop", "history", "koreanfood"],
+    "companion": "alone",
+    "transportation": "car",
+    "language": "ko"
+  }'
 ```
 
 ### **3. 공개 API (인증 불필요)**
