@@ -38,6 +38,8 @@ public class SecurityConfig {
                 .requestMatchers("/favicon.ico").permitAll()
                 .requestMatchers("/").permitAll()
                 .requestMatchers("/login.html").permitAll()
+                // swagger API 명세서 조회용
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                 // 나머지 모든 요청은 인증 필요
                 .anyRequest().authenticated()
             )
