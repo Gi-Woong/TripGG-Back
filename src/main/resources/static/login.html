@@ -155,9 +155,9 @@
             const userInfoDiv = document.getElementById('userInfo');
             userInfoDiv.innerHTML = `
                 <h3>로그인 성공!</h3>
-                // <p><strong>닉네임:</strong> ${user.nickname}</p>
-                // <p><strong>카카오 ID:</strong> ${user.kakaoId}</p>
-                // <p><strong>가입일:</strong> ${new Date(user.createdAt).toLocaleDateString()}</p>
+                <p><strong>닉네임:</strong> ${user.user.nickname}</p>
+                <p><strong>카카오 ID:</strong> ${user.user.kakaoId}</p>
+                <p><strong>가입일:</strong> ${new Date(user.user.createdAt).toLocaleDateString()}</p>
                 <p><strong>Bearer Token:</strong> ${user.accessToken}</p>
             `;
             userInfoDiv.style.display = 'block';
