@@ -222,7 +222,7 @@
             <h3>📋 목차</h3>
             <ul>
                 <li><a href="#users">👥 사용자 관리 API</a></li>
-                <li><a href="#places">🏛️ 장소 관리 API</a></li>
+                <li><a href="#schedulePlaces">🏛️ 장소 관리 API</a></li>
                 <li><a href="#schedules">📅 일정 관리 API</a></li>
                 <li><a href="#videos">🎥 비디오 관리 API</a></li>
                 <li><a href="#chat">💬 채팅 API</a></li>
@@ -365,12 +365,12 @@
         </div>
         
         <!-- 장소 관리 API -->
-        <div class="api-section" id="places">
+        <div class="api-section" id="schedulePlaces">
             <div class="section-header">🏛️ 장소 관리 API</div>
             
             <div class="endpoint">
                 <div class="method get">GET</div>
-                <div class="endpoint-url">/api/places</div>
+                <div class="endpoint-url">/api/schedulePlaces</div>
                 <div class="description">전체 장소 목록 조회</div>
                 <div class="json-section">
                     <div class="json-label">응답 예시:</div>
@@ -396,7 +396,7 @@
             
             <div class="endpoint">
                 <div class="method get">GET</div>
-                <div class="endpoint-url">/api/places/{id}</div>
+                <div class="endpoint-url">/api/schedulePlaces/{id}</div>
                 <div class="description">특정 장소 조회</div>
                 <div class="params">
                     <div class="param-item">
@@ -409,7 +409,7 @@
             
             <div class="endpoint">
                 <div class="method post">POST</div>
-                <div class="endpoint-url">/api/places</div>
+                <div class="endpoint-url">/api/schedulePlaces</div>
                 <div class="description">장소 생성</div>
                 <div class="json-section">
                     <div class="json-label">요청 Body:</div>
@@ -426,7 +426,7 @@
             
             <div class="endpoint">
                 <div class="method get">GET</div>
-                <div class="endpoint-url">/api/places/search</div>
+                <div class="endpoint-url">/api/schedulePlaces/search</div>
                 <div class="description">카테고리별 장소 검색 (카카오맵 API)</div>
                 <div class="params">
                     <div class="param-item">
@@ -467,7 +467,7 @@
       "roadAddressName": "서울시 강남구 더미로 1길",
       "longitude": 127.01,
       "latitude": 37.51,
-      "placeUrl": "http://place.map.kakao.com/dummy1",
+      "placeUrl": "http://schedulePlaces.map.kakao.com/dummy1",
       "distance": "101",
       "source": "kakao",
       "description": null

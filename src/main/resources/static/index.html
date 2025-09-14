@@ -247,12 +247,12 @@
                 
                 <div class="api-group">
                     <h3>🏛️ 장소 관리 (JWT 인증 필요)</h3>
-                    <button onclick="testAPIWithToken('/api/places')" class="api-btn">GET /api/places (전체 장소)</button>
-                    <button onclick="testAPIWithToken('/api/places/1')" class="api-btn">GET /api/places/{id} (장소 상세)</button>
+                    <button onclick="testAPIWithToken('/api/schedulePlaces')" class="api-btn">GET /api/schedulePlaces (전체 장소)</button>
+                    <button onclick="testAPIWithToken('/api/schedulePlaces/1')" class="api-btn">GET /api/schedulePlaces/{id} (장소 상세)</button>
                     <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
                         <strong>🏷️ 카테고리 기반 장소 검색 API</strong><br>
-                        • GET /api/places/search - 카테고리별 장소 검색 (카카오맵 API 사용)<br>
-                        • GET /api/places/{placeId} - 장소 상세 조회<br>
+                        • GET /api/schedulePlaces/search - 카테고리별 장소 검색 (카카오맵 API 사용)<br>
+                        • GET /api/schedulePlaces/{placeId} - 장소 상세 조회<br>
                         • 카테고리 코드: MT1(대형마트), CS2(편의점), FD6(음식점), CE7(카페), HP8(병원), PM9(약국) 등
                     </div>
                     
@@ -261,19 +261,19 @@
                         • 카테고리만으로도 정확한 결과 반환
                     </div>
                     
-                    <a href="/api/places/search?category=FD6" class="api-btn" target="_blank">GET /api/places/search?category=FD6 (음식점)</a>
-                    <a href="/api/places/search?category=CE7" class="api-btn" target="_blank">GET /api/places/search?category=CE7 (카페)</a>
-                    <a href="/api/places/search?category=MT1" class="api-btn" target="_blank">GET /api/places/search?category=MT1 (대형마트)</a>
-                    <a href="/api/places/search?category=CS2" class="api-btn" target="_blank">GET /api/places/search?category=CS2 (편의점)</a>
+                    <a href="/api/schedulePlaces/search?category=FD6" class="api-btn" target="_blank">GET /api/schedulePlaces/search?category=FD6 (음식점)</a>
+                    <a href="/api/schedulePlaces/search?category=CE7" class="api-btn" target="_blank">GET /api/schedulePlaces/search?category=CE7 (카페)</a>
+                    <a href="/api/schedulePlaces/search?category=MT1" class="api-btn" target="_blank">GET /api/schedulePlaces/search?category=MT1 (대형마트)</a>
+                    <a href="/api/schedulePlaces/search?category=CS2" class="api-btn" target="_blank">GET /api/schedulePlaces/search?category=CS2 (편의점)</a>
                     
                     <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em;">
                         <strong>📍 위치 기반 카테고리 검색</strong><br>
                         • 특정 지역에서 카테고리별 장소 검색
                     </div>
                     
-                    <a href="/api/places/search?category=FD6&x=127.0276&y=37.4979&radius=5000" class="api-btn" target="_blank">GET /api/places/search (강남구 음식점)</a>
-                    <a href="/api/places/search?category=CE7&x=127.0276&y=37.4979&radius=5000" class="api-btn" target="_blank">GET /api/places/search (강남구 카페)</a>
-                    <a href="/api/places/search?category=FD6&x=126.9726&y=37.5547&radius=3000" class="api-btn" target="_blank">GET /api/places/search (서울역 음식점)</a>
+                    <a href="/api/schedulePlaces/search?category=FD6&x=127.0276&y=37.4979&radius=5000" class="api-btn" target="_blank">GET /api/schedulePlaces/search (강남구 음식점)</a>
+                    <a href="/api/schedulePlaces/search?category=CE7&x=127.0276&y=37.4979&radius=5000" class="api-btn" target="_blank">GET /api/schedulePlaces/search (강남구 카페)</a>
+                    <a href="/api/schedulePlaces/search?category=FD6&x=126.9726&y=37.5547&radius=3000" class="api-btn" target="_blank">GET /api/schedulePlaces/search (서울역 음식점)</a>
                 </div>
                 
                 <div class="api-group">
@@ -412,14 +412,14 @@
             resultDiv.textContent = '공개 API 테스트 중...';
             
             try {
-                const response = await fetch('/api/places/search?category=FD6');
+                const response = await fetch('/api/schedulePlaces/search?category=FD6');
                 const data = await response.json();
                 
                 if (response.ok) {
                     resultDiv.className = 'api-status success';
                     resultDiv.innerHTML = `
                         <strong>✅ 공개 API 테스트 성공!</strong><br>
-                        <strong>엔드포인트:</strong> /api/places/search (카테고리별 장소 검색)<br>
+                        <strong>엔드포인트:</strong> /api/schedulePlaces/search (카테고리별 장소 검색)<br>
                         <strong>응답:</strong><br>
                         <pre style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 5px; overflow-x: auto; font-size: 0.9em;">${JSON.stringify(data, null, 2)}</pre>
                     `;

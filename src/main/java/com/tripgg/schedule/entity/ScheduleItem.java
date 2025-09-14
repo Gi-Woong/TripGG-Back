@@ -1,6 +1,6 @@
 package com.tripgg.schedule.entity;
 
-import com.tripgg.place.entity.Place;
+import com.tripgg.place.entity.SchedulePlaces;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,7 +30,7 @@ public class ScheduleItem {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id")
-    private Place place;
+    private SchedulePlaces schedulePlaces;
     
     @Column(name = "day")
     private Integer day;

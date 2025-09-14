@@ -3,7 +3,7 @@ package com.tripgg.place.service;
 import com.tripgg.place.dto.KakaoPlaceResponse;
 import com.tripgg.place.dto.PlaceSearchRequest;
 import com.tripgg.place.dto.PlaceSearchResult;
-import com.tripgg.place.entity.Place;
+import com.tripgg.place.entity.SchedulePlaces;
 import com.tripgg.place.repository.PlaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,67 +26,67 @@ public class PlaceService {
     
     // 장소 생성
     @Transactional
-    public Place createPlace(Place place) {
-        return placeRepository.save(place);
+    public SchedulePlaces createPlace(SchedulePlaces schedulePlaces) {
+        return placeRepository.save(schedulePlaces);
     }
     
     // 장소 조회
-    public Optional<Place> getPlaceById(Long id) {
+    public Optional<SchedulePlaces> getPlaceById(Long id) {
         return placeRepository.findById(id);
     }
     
     // 전체 장소 목록 조회
-    public List<Place> getAllPlaces() {
+    public List<SchedulePlaces> getAllPlaces() {
         return placeRepository.findAll();
     }
     
     // 카테고리별 장소 조회
-    public List<Place> getPlacesByCategory(String category) {
+    public List<SchedulePlaces> getPlacesByCategory(String category) {
         return placeRepository.findByCategory(category);
     }
     
     // 이름으로 장소 검색
-    public List<Place> searchPlacesByName(String name) {
+    public List<SchedulePlaces> searchPlacesByName(String name) {
         return placeRepository.findByNameContaining(name);
     }
     
     // 주소로 장소 검색
-    public List<Place> searchPlacesByAddress(String address) {
+    public List<SchedulePlaces> searchPlacesByAddress(String address) {
         return placeRepository.findByAddressContaining(address);
     }
     
     // 좌표 범위 내 장소 조회
-    public List<Place> getPlacesByCoordinatesRange(
+    public List<SchedulePlaces> getPlacesByCoordinatesRange(
             Double minLat, Double maxLat, Double minLng, Double maxLng) {
         return placeRepository.findByCoordinatesRange(minLat, maxLat, minLng, maxLng);
     }
     
     // 장소 수정
     @Transactional
-    public Place updatePlace(Long id, Place placeDetails) {
-        Place place = placeRepository.findById(id)
+    public SchedulePlaces updatePlace(Long id, SchedulePlaces schedulePlacesDetails) {
+        SchedulePlaces schedulePlaces = placeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("장소를 찾을 수 없습니다."));
         
-        if (placeDetails.getName() != null) {
-            place.setName(placeDetails.getName());
+        if (schedulePlacesDetails.getName() != null) {
+            schedulePlaces.setName(schedulePlacesDetails.getName());
         }
-        if (placeDetails.getCategory() != null) {
-            place.setCategory(placeDetails.getCategory());
+        if (schedulePlacesDetails.getCategory() != null) {
+            schedulePlaces.setCategory(schedulePlacesDetails.getCategory());
         }
-        if (placeDetails.getAddress() != null) {
-            place.setAddress(placeDetails.getAddress());
+        if (schedulePlacesDetails.getAddress() != null) {
+            schedulePlaces.setAddress(schedulePlacesDetails.getAddress());
         }
-        if (placeDetails.getLatitude() != null) {
-            place.setLatitude(placeDetails.getLatitude());
+        if (schedulePlacesDetails.getLatitude() != null) {
+            schedulePlaces.setLatitude(schedulePlacesDetails.getLatitude());
         }
-        if (placeDetails.getLongitude() != null) {
-            place.setLongitude(placeDetails.getLongitude());
+        if (schedulePlacesDetails.getLongitude() != null) {
+            schedulePlaces.setLongitude(schedulePlacesDetails.getLongitude());
         }
-        if (placeDetails.getDescription() != null) {
-            place.setDescription(placeDetails.getDescription());
+        if (schedulePlacesDetails.getDescription() != null) {
+            schedulePlaces.setDescription(schedulePlacesDetails.getDescription());
         }
         
-        return placeRepository.save(place);
+        return placeRepository.save(schedulePlaces);
     }
     
     // 장소 삭제
@@ -174,16 +174,16 @@ public class PlaceService {
     /**
      * DB Place 엔티티를 PlaceSearchResult로 변환
      */
-    private List<PlaceSearchResult> convertToSearchResults(List<Place> places, String source) {
-        return places.stream().map(place -> {
+    private List<PlaceSearchResult> convertToSearchResults(List<SchedulePlaces> schedulePlacesList, String source) {
+        return schedulePlacesList.stream().map(schedulePlaces -> {
             PlaceSearchResult result = new PlaceSearchResult();
-            result.setId(String.valueOf(place.getId()));
-            result.setPlaceName(place.getName());
-            result.setCategoryName(place.getCategory());
-            result.setAddressName(place.getAddress());
-            result.setLongitude(place.getLongitude());
-            result.setLatitude(place.getLatitude());
-            result.setDescription(place.getDescription());
+            result.setId(String.valueOf(schedulePlaces.getId()));
+            result.setPlaceName(schedulePlaces.getName());
+            result.setCategoryName(schedulePlaces.getCategory());
+            result.setAddressName(schedulePlaces.getAddress());
+            result.setLongitude(schedulePlaces.getLongitude());
+            result.setLatitude(schedulePlaces.getLatitude());
+            result.setDescription(schedulePlaces.getDescription());
             result.setSource(source);
             return result;
         }).collect(Collectors.toList());
