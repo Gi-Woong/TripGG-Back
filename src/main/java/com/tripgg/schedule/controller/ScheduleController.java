@@ -2,7 +2,10 @@ package com.tripgg.schedule.controller;
 
 import com.tripgg.auth.util.SecurityUtil;
 import com.tripgg.common.dto.ApiResponse;
+import com.tripgg.schedule.dto.AiScheduleRequest;
+import com.tripgg.schedule.dto.AiScheduleResponse;
 import com.tripgg.schedule.entity.Schedule;
+import com.tripgg.schedule.service.GptApiService;
 import com.tripgg.schedule.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,31 @@ import java.util.List;
 public class ScheduleController {
     
     private final ScheduleService scheduleService;
+    private final GptApiService gptApiService;
+    
+    // AI 일정 생성
+    @PostMapping("/ai-generate")
+    public ResponseEntity<ApiResponse<AiScheduleResponse>> generateAiSchedule(@RequestBody AiScheduleRequest request) {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        String currentUserNickname = SecurityUtil.getCurrentUserNickname();
+        log.info("AI 일정 생성 요청 - 사용자 ID: {}, 닉네임: {}", currentUserId, currentUserNickname);
+        
+        if (currentUserId == null) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("인증이 필요합니다."));
+        }
+        
+        try {
+            AiScheduleResponse response = gptApiService.generateSchedule(request);
+            // GPT 응답을 DB에 저장
+            AiScheduleResponse savedResponse = scheduleService.saveAiSchedule(response, currentUserId);
+            return ResponseEntity.ok(ApiResponse.success("AI 일정이 성공적으로 생성되었습니다.", savedResponse));
+        } catch (Exception e) {
+            log.error("AI 일정 생성 중 오류 발생", e);
+            return ResponseEntity.internalServerError()
+                    .body(ApiResponse.error("AI 일정 생성 중 오류가 발생했습니다: " + e.getMessage()));
+        }
+    }
     
     // 전체 일정 조회
     @GetMapping

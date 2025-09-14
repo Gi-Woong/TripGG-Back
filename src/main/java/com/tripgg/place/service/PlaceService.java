@@ -30,6 +30,17 @@ public class PlaceService {
         return placeRepository.save(place);
     }
     
+    // 장소 저장 (별칭)
+    @Transactional
+    public Place savePlace(Place place) {
+        return placeRepository.save(place);
+    }
+    
+    // 이름과 주소로 장소 조회
+    public Optional<Place> findByNameAndAddress(String name, String address) {
+        return placeRepository.findByNameAndAddress(name, address);
+    }
+    
     // 장소 조회
     public Optional<Place> getPlaceById(Long id) {
         return placeRepository.findById(id);

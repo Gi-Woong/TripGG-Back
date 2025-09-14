@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PlaceRepository extends JpaRepository<Place, Long> {
@@ -30,5 +31,8 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
     
     // 카테고리별 장소 개수 조회
     long countByCategory(String category);
+    
+    // 이름과 주소로 장소 조회
+    Optional<Place> findByNameAndAddress(String name, String address);
 }
 
