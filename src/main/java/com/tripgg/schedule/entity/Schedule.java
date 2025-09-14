@@ -39,7 +39,13 @@ public class Schedule {
     @Column(name = "is_ai_generated")
     @Builder.Default
     private Boolean isAiGenerated = false;
-    
+
+    @Column(name = "start_date") // 신규추가
+    private LocalDateTime startDate;
+
+    @Column(name = "end_date")   // 신규추가
+    private LocalDateTime endDate;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
