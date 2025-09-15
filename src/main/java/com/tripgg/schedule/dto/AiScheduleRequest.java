@@ -25,5 +25,6 @@ public class AiScheduleRequest {
     private List<String> keywords;
     private String companion;
     private String transportation;
+    private String travelStyle;
     private String language;
 }

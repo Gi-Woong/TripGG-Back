@@ -32,6 +32,7 @@ public class ScheduleService {
     private final ScheduleItemRepository scheduleItemRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final PlaceService placeService;
 
     @Transactional
     public List<ScheduleItem> getTodayScheduleItem(Long userId) {
