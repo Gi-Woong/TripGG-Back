@@ -5,7 +5,7 @@ import com.tripgg.common.dto.ApiResponse;
 import com.tripgg.schedule.dto.AiScheduleRequest;
 import com.tripgg.schedule.dto.AiScheduleResponse;
 import com.tripgg.schedule.entity.Schedule;
-import com.tripgg.schedule.service.GptApiService;
+import com.tripgg.schedule.service.ai.GptApiService;
 import com.tripgg.schedule.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

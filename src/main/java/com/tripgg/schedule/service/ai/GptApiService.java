@@ -1,4 +1,4 @@
-package com.tripgg.schedule.service;
+package com.tripgg.schedule.service.ai;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tripgg.schedule.dto.AiScheduleRequest;
@@ -77,7 +77,7 @@ public class GptApiService {
         }
     }
     
-    private String buildPrompt(AiScheduleRequest request) {
+    public String buildPrompt(AiScheduleRequest request) {
         StringBuilder prompt = new StringBuilder();
         String language = request.getLanguage();
         
