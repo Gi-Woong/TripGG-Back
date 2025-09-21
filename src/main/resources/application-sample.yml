@@ -70,3 +70,13 @@ kakao:
     api:
       key: ${KAKAO_MAP_API_KEY}
       base-url: https://dapi.kakao.com
+
+gpt:
+  api:
+    key: ${GPT_API_KEY}
+    url: ${GPT_API_URL}
+
+gemini:
+  api:
+    key: ${GEMINI_API_KEY}
+    url: ${GEMINI_API_URL}
