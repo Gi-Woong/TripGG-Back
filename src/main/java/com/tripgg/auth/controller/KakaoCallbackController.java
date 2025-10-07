@@ -18,7 +18,6 @@ import java.util.Map;
 @Controller
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "MKD", description = "테스트 데이터 생성 서비스")
 public class KakaoCallbackController {
 
     private final KakaoAuthService kakaoAuthService;
