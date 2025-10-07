@@ -32,7 +32,6 @@ public class HomeController {
         Long userId = SecurityUtil.getCurrentUserId();
         String userNickname = SecurityUtil.getCurrentUserNickname();
 
-        // TODO: 각 Item 별 Place정보도 함께 돌려주기
         List<ScheduleItem> todayScheduleItems = scheduleService.getTodayScheduleItem(userId);
         log.info("오늘의 일정 조회 요청 - 사용자 ID: {}, 닉네임: {}" + userId + userNickname);
 
