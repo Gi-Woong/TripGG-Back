@@ -14,6 +14,7 @@ public interface ScheduleItemRepository extends JpaRepository<ScheduleItem, Long
 
     @Query("SELECT si FROM ScheduleItem si " +
             "JOIN si.schedule s " +
+            "LEFT JOIN FETCH si.schedulePlaces " +
             "WHERE s.user.id = :userId " +
             "AND si.startDate = CURRENT_DATE " +
             "ORDER BY si.day, si.orderInDay")
